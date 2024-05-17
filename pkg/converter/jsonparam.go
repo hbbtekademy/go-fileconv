@@ -1,4 +1,4 @@
-package ddb
+package converter
 
 type Compression string
 
