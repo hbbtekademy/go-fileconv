@@ -1,13 +1,4 @@
-package converter
-
-type Compression string
-
-const (
-	None            Compression = "none"
-	Gzip            Compression = "gzip"
-	Zstd            Compression = "zstd"
-	AutoCompression Compression = "auto"
-)
+package pqconv
 
 type JsonFormat string
 
@@ -124,7 +115,7 @@ func WithSampleSize(sampleSize uint64) jsonParam {
 	}
 }
 
-func WithtimestampFormat(timestampformat string) jsonParam {
+func WithTimestampFormat(timestampformat string) jsonParam {
 	return func(jp *jsonParameters) {
 		jp.timestampformat = timestampformat
 	}

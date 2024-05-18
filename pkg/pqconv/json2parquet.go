@@ -1,4 +1,4 @@
-package converter
+package pqconv
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"github.com/hbbtekademy/parquet-converter/pkg/util"
 )
 
-func (d *ddbClient) Json2Parquet(ctx context.Context, srcJsonFilepath string, destDirpath string, params ...jsonParam) error {
+func (d *pqconv) Json2Parquet(ctx context.Context, srcJsonFilepath string, destDirpath string, params ...jsonParam) error {
 	err := util.ValidateFilepath(srcJsonFilepath)
 	if err != nil {
 		return err
