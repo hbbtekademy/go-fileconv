@@ -46,6 +46,23 @@ type jsonParameters struct {
 
 type Param func(*jsonParameters)
 
+const (
+	DfltAutodetect      bool        = false
+	DfltCompression     Compression = AutoCompression
+	DfltConvStr2Int     bool        = false
+	DfltDateFormat      string      = "iso"
+	DfltFilename        bool        = false
+	DfltFormat          Format      = Array
+	DfltHivePartition   bool        = false
+	DfltIgnoreErrors    bool        = false
+	DfltMaxDept         int64       = -1
+	DfltMaxObjSize      uint64      = 16777216
+	DfltRecords         Records     = AutoRecords
+	DfltSampleSize      uint64      = 20480
+	DfltTimestampFormat string      = "iso"
+	DfltUnionByName     bool        = false
+)
+
 func WithAutoDetect(autodetect bool) Param {
 	return func(jp *jsonParameters) {
 		jp.autodetect = autodetect
@@ -138,15 +155,21 @@ func WithUnionByName(unionByName bool) Param {
 
 func New(params ...Param) *jsonParameters {
 	jsonParams := &jsonParameters{
-		columns:         make(map[string]string),
-		compression:     AutoCompression,
-		dateformat:      "iso",
-		format:          Array,
-		maxDepth:        -1,
-		maxObjSize:      16777216,
-		records:         True,
-		sampleSize:      20480,
-		timestampformat: "iso",
+		autodetect:       DfltAutodetect,
+		columns:          make(map[string]string),
+		compression:      DfltCompression,
+		convStr2Int:      DfltConvStr2Int,
+		dateformat:       DfltDateFormat,
+		filename:         DfltFilename,
+		format:           DfltFormat,
+		hivePartitioning: DfltHivePartition,
+		ignoreErrors:     DfltIgnoreErrors,
+		maxDepth:         DfltMaxDept,
+		maxObjSize:       DfltMaxObjSize,
+		records:          DfltRecords,
+		sampleSize:       DfltSampleSize,
+		timestampformat:  DfltTimestampFormat,
+		unionByName:      DfltUnionByName,
 	}
 
 	for _, param := range params {

@@ -1,5 +1,14 @@
 package pqparam
 
+type Compression string
+
+const (
+	Snappy Compression = "snappy"
+	Zstd   Compression = "zstd"
+	Gzip   Compression = "gzip"
+	LZ4    Compression = "LZ4"
+)
+
 type hivePartitionConfig struct {
 	partitionBy       []string
 	overwriteOrIgnore int8
@@ -30,6 +39,8 @@ func WithFilenamePattern(filenamePattern string) HivePartitionOption {
 }
 
 type Params struct {
+	compression         Compression
+	rowGroupSize        int64
 	binaryAsString      bool
 	filename            bool
 	fileRowNum          bool
@@ -40,59 +51,86 @@ type Params struct {
 
 type Param func(*Params)
 
+const (
+	DfltCompression    Compression = "zstd"
+	DfltRowGroupSize   int64       = 100000
+	DfltBinaryAsString bool        = false
+	DfltFilename       bool        = false
+	DfltFileRowNum     bool        = false
+	DfltUnionyName     bool        = false
+	DfltHivePartition  bool        = false
+)
+
+var (
+	DfltHivePartitionConfig *hivePartitionConfig = &hivePartitionConfig{
+		partitionBy:       []string{},
+		overwriteOrIgnore: 0,
+		filenamePattern:   "data_{i}",
+	}
+)
+
+func WithCompression(compression Compression) Param {
+	return func(p *Params) {
+		p.compression = compression
+	}
+}
+
+func WithRowGroupSize(rowGroupSize int64) Param {
+	return func(p *Params) {
+		p.rowGroupSize = rowGroupSize
+	}
+}
+
 func WithBinaryAsString(binaryAsString bool) Param {
-	return func(pp *Params) {
-		pp.binaryAsString = binaryAsString
+	return func(p *Params) {
+		p.binaryAsString = binaryAsString
 	}
 }
 
 func WithFilename(filename bool) Param {
-	return func(pp *Params) {
-		pp.filename = filename
+	return func(p *Params) {
+		p.filename = filename
 	}
 }
 
 func WithFileRowNum(fileRowNum bool) Param {
-	return func(pp *Params) {
-		pp.fileRowNum = fileRowNum
+	return func(p *Params) {
+		p.fileRowNum = fileRowNum
 	}
 }
 
 func WithUnionByName(unionByName bool) Param {
-	return func(pp *Params) {
-		pp.unionByName = unionByName
+	return func(p *Params) {
+		p.unionByName = unionByName
 	}
 }
 
 func WithHivePartition(hivePartition bool) Param {
-	return func(pp *Params) {
-		pp.hivePartition = hivePartition
+	return func(p *Params) {
+		p.hivePartition = hivePartition
 	}
 }
 
 func WithHivePartitionConfig(options ...HivePartitionOption) Param {
-	return func(pp *Params) {
-		config := &hivePartitionConfig{
-			partitionBy:       []string{},
-			overwriteOrIgnore: 0,
-			filenamePattern:   "data_{i}",
-		}
-
+	return func(p *Params) {
+		config := DfltHivePartitionConfig
 		for _, opt := range options {
 			opt(config)
 		}
 
-		pp.hivePartitionConfig = config
+		p.hivePartitionConfig = config
 	}
 }
 
 func New(params ...Param) *Params {
 	pqParameters := &Params{
-		binaryAsString: false,
-		filename:       false,
-		fileRowNum:     false,
-		unionByName:    false,
-		hivePartition:  false,
+		compression:    DfltCompression,
+		rowGroupSize:   DfltRowGroupSize,
+		binaryAsString: DfltBinaryAsString,
+		filename:       DfltFilename,
+		fileRowNum:     DfltFileRowNum,
+		unionByName:    DfltUnionyName,
+		hivePartition:  DfltUnionyName,
 	}
 
 	p := WithHivePartitionConfig()
