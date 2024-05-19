@@ -14,8 +14,9 @@ type pqconv struct {
 	db *sql.DB
 }
 
-// TODO: Handle duckdb options
+// Returns an instance of parquet converter
 func New(ctx context.Context, dbFile string) (*pqconv, error) {
+	// TODO: Handle duckdb options.
 	dbConn, err := duckdb.NewConnector(dbFile, func(execer driver.ExecerContext) error {
 		bootQueries := []string{
 			"INSTALL 'icu'",
