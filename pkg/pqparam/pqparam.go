@@ -1,5 +1,10 @@
 package pqparam
 
+import (
+	"fmt"
+	"strings"
+)
+
 type Compression string
 
 const (
@@ -17,7 +22,12 @@ type hivePartitionConfig struct {
 
 type HivePartitionOption func(*hivePartitionConfig)
 
-func WithPartitionBy(partitionBy []string) HivePartitionOption {
+const (
+	DfltOverwriteOrIgnore int8   = 0
+	DfltFilenamePattern   string = "data_{i}"
+)
+
+func WithPartitionBy(partitionBy ...string) HivePartitionOption {
 	return func(hpc *hivePartitionConfig) {
 		hpc.partitionBy = partitionBy
 	}
@@ -47,26 +57,20 @@ type Params struct {
 	unionByName         bool
 	hivePartition       bool
 	hivePartitionConfig *hivePartitionConfig
+	perThreadOutput     bool
 }
 
 type Param func(*Params)
 
 const (
-	DfltCompression    Compression = "zstd"
-	DfltRowGroupSize   int64       = 100000
-	DfltBinaryAsString bool        = false
-	DfltFilename       bool        = false
-	DfltFileRowNum     bool        = false
-	DfltUnionyName     bool        = false
-	DfltHivePartition  bool        = false
-)
-
-var (
-	DfltHivePartitionConfig *hivePartitionConfig = &hivePartitionConfig{
-		partitionBy:       []string{},
-		overwriteOrIgnore: 0,
-		filenamePattern:   "data_{i}",
-	}
+	DfltCompression     Compression = "snappy"
+	DfltRowGroupSize    int64       = 122880
+	DfltBinaryAsString  bool        = false
+	DfltFilename        bool        = false
+	DfltFileRowNum      bool        = false
+	DfltUnionyName      bool        = false
+	DfltHivePartition   bool        = false
+	DfltPerThreadOutput bool        = false
 )
 
 func WithCompression(compression Compression) Param {
@@ -113,24 +117,34 @@ func WithHivePartition(hivePartition bool) Param {
 
 func WithHivePartitionConfig(options ...HivePartitionOption) Param {
 	return func(p *Params) {
-		config := DfltHivePartitionConfig
-		for _, opt := range options {
-			opt(config)
+		p.hivePartitionConfig = &hivePartitionConfig{
+			partitionBy:       []string{},
+			overwriteOrIgnore: DfltOverwriteOrIgnore,
+			filenamePattern:   DfltFilenamePattern,
 		}
 
-		p.hivePartitionConfig = config
+		for _, opt := range options {
+			opt(p.hivePartitionConfig)
+		}
+	}
+}
+
+func WithPerThreadOutput(perThreadOutput bool) Param {
+	return func(p *Params) {
+		p.perThreadOutput = perThreadOutput
 	}
 }
 
 func New(params ...Param) *Params {
 	pqParameters := &Params{
-		compression:    DfltCompression,
-		rowGroupSize:   DfltRowGroupSize,
-		binaryAsString: DfltBinaryAsString,
-		filename:       DfltFilename,
-		fileRowNum:     DfltFileRowNum,
-		unionByName:    DfltUnionyName,
-		hivePartition:  DfltUnionyName,
+		compression:     DfltCompression,
+		rowGroupSize:    DfltRowGroupSize,
+		binaryAsString:  DfltBinaryAsString,
+		filename:        DfltFilename,
+		fileRowNum:      DfltFileRowNum,
+		unionByName:     DfltUnionyName,
+		hivePartition:   DfltUnionyName,
+		perThreadOutput: DfltPerThreadOutput,
 	}
 
 	p := WithHivePartitionConfig()
@@ -141,4 +155,38 @@ func New(params ...Param) *Params {
 	}
 
 	return pqParameters
+}
+
+func (p *Params) WriteParams() string {
+	params := []string{"FORMAT PARQUET"}
+
+	if p.compression != DfltCompression {
+		params = append(params, fmt.Sprintf("COMPRESSION '%s'", p.compression))
+	}
+
+	if p.rowGroupSize != DfltRowGroupSize {
+		params = append(params, fmt.Sprintf("ROW_GROUP_SIZE %d", p.rowGroupSize))
+	}
+
+	if len(p.hivePartitionConfig.partitionBy) > 0 {
+		params = append(params, fmt.Sprintf("PARTITION_BY (%s)", strings.Join(p.hivePartitionConfig.partitionBy, ",")))
+	}
+
+	if p.perThreadOutput {
+		params = append(params, "PER_THREAD_OUTPUT true")
+	}
+
+	if p.hivePartitionConfig.overwriteOrIgnore != DfltOverwriteOrIgnore {
+		params = append(params, fmt.Sprintf("OVERWRITE_OR_IGNORE %d", p.hivePartitionConfig.overwriteOrIgnore))
+	}
+
+	if p.hivePartitionConfig.filenamePattern != DfltFilenamePattern {
+		params = append(params, fmt.Sprintf("FILENAME_PATTERN '%s'", p.hivePartitionConfig.filenamePattern))
+	}
+
+	return fmt.Sprintf("(%s)", strings.Join(params, ","))
+}
+
+func (p *Params) ReadParams() string {
+	return ""
 }
