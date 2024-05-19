@@ -3,24 +3,12 @@ package pqconv
 import (
 	"context"
 	"fmt"
-
-	"github.com/hbbtekademy/parquet-converter/pkg/util"
 )
 
-func (d *pqconv) Json2Parquet(ctx context.Context, srcJsonFilepath string, destDirpath string, params ...jsonParam) error {
-	err := util.ValidateFilepath(srcJsonFilepath)
-	if err != nil {
-		return err
-	}
-
-	err = util.ValidateDirpath(destDirpath)
-	if err != nil {
-		return err
-	}
-
+func (c *pqconv) Json2Parquet(ctx context.Context, srcJson string, dest string, params ...jsonParam) error {
 	_ = getJsonParameters(params...)
 
-	_, err = d.db.ExecContext(ctx, fmt.Sprintf("COPY (SELECT * FROM read_json('%s')) TO '%s' (FORMAT 'parquet')", srcJsonFilepath, destDirpath))
+	_, err := c.db.ExecContext(ctx, fmt.Sprintf("COPY (SELECT * FROM read_json('%s')) TO '%s' (FORMAT 'parquet')", srcJson, dest))
 	if err != nil {
 		return err
 	}

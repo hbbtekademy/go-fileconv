@@ -16,8 +16,12 @@ type pqconv struct {
 func New(ctx context.Context, dbFile string) (*pqconv, error) {
 	dbConn, err := duckdb.NewConnector(dbFile, func(execer driver.ExecerContext) error {
 		bootQueries := []string{
+			"INSTALL 'icu'",
+			"LOAD 'icu'",
 			"INSTALL 'json'",
 			"LOAD 'json'",
+			"INSTALL 'parquet'",
+			"LOAD 'parquet'",
 		}
 
 		for _, query := range bootQueries {
@@ -32,7 +36,14 @@ func New(ctx context.Context, dbFile string) (*pqconv, error) {
 		return nil, err
 	}
 
+	db := sql.OpenDB(dbConn)
+
+	var ver string
+	if err := db.QueryRowContext(ctx, "select version()").Scan(&ver); err != nil {
+		return nil, err
+	}
+
 	return &pqconv{
-		db: sql.OpenDB(dbConn),
+		db: db,
 	}, nil
 }
