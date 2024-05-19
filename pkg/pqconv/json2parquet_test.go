@@ -19,7 +19,7 @@ func TestJson2Parquet(t *testing.T) {
 	tests := []struct {
 		name                          string
 		setup                         func() error
-		pqParams                      []pqparam.Param
+		pqParams                      []pqparam.WriteParam
 		inputJson                     string
 		outputParquet                 string
 		outputPartitionedParquetRegex string
@@ -27,7 +27,7 @@ func TestJson2Parquet(t *testing.T) {
 	}{
 		{
 			name: "TC1",
-			pqParams: []pqparam.Param{
+			pqParams: []pqparam.WriteParam{
 				pqparam.WithCompression(pqparam.Zstd),
 				pqparam.WithRowGroupSize(50),
 			},
@@ -37,7 +37,7 @@ func TestJson2Parquet(t *testing.T) {
 		},
 		{
 			name:             "TC2",
-			pqParams:         []pqparam.Param{},
+			pqParams:         []pqparam.WriteParam{},
 			inputJson:        "../../testdata/iris*.json",
 			outputParquet:    "../../testdata/iris155.parquet",
 			expectedRowCount: 155,
@@ -51,7 +51,7 @@ func TestJson2Parquet(t *testing.T) {
 				}
 				return os.Mkdir("../../testdata/partition", 0700)
 			},
-			pqParams: []pqparam.Param{
+			pqParams: []pqparam.WriteParam{
 				pqparam.WithHivePartitionConfig(
 					pqparam.WithPartitionBy("species"),
 					pqparam.WithFilenamePattern("iris_{i}"),
@@ -79,7 +79,7 @@ func TestJson2Parquet(t *testing.T) {
 				}
 			}
 
-			err = conv.Json2Parquet(context.Background(), tc.inputJson, tc.outputParquet, pqparam.New(tc.pqParams...))
+			err = conv.Json2Parquet(context.Background(), tc.inputJson, tc.outputParquet, pqparam.NewWriteParams(tc.pqParams...))
 			if err != nil {
 				t.Fatalf("failed converting json to parquet. error: %v", err)
 			}
