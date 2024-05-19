@@ -1,20 +1,29 @@
-package pqconv
+package jsonparam
 
-type JsonFormat string
+type Compression string
 
 const (
-	AutoFormat       JsonFormat = "auto"
-	Unstructured     JsonFormat = "unstructured"
-	NewlineDelimited JsonFormat = "newline_delimited"
-	Array            JsonFormat = "array"
+	None            Compression = "none"
+	Gzip            Compression = "gzip"
+	Zstd            Compression = "zstd"
+	AutoCompression Compression = "auto"
 )
 
-type JsonRecords string
+type Format string
 
 const (
-	AutoRecords JsonRecords = "auto"
-	True        JsonRecords = "true"
-	False       JsonRecords = "false"
+	AutoFormat       Format = "auto"
+	Unstructured     Format = "unstructured"
+	NewlineDelimited Format = "newline_delimited"
+	Array            Format = "array"
+)
+
+type Records string
+
+const (
+	AutoRecords Records = "auto"
+	True        Records = "true"
+	False       Records = "false"
 )
 
 type jsonParameters struct {
@@ -24,110 +33,110 @@ type jsonParameters struct {
 	convStr2Int      bool
 	dateformat       string
 	filename         bool
-	format           JsonFormat
+	format           Format
 	hivePartitioning bool
 	ignoreErrors     bool
 	maxDepth         int64
 	maxObjSize       uint64
-	records          JsonRecords
+	records          Records
 	sampleSize       uint64
 	timestampformat  string
 	unionByName      bool
 }
 
-type jsonParam func(*jsonParameters)
+type Param func(*jsonParameters)
 
-func WithAutoDetect(autodetect bool) jsonParam {
+func WithAutoDetect(autodetect bool) Param {
 	return func(jp *jsonParameters) {
 		jp.autodetect = autodetect
 	}
 }
 
-func WithColumns(columns map[string]string) jsonParam {
+func WithColumns(columns map[string]string) Param {
 	return func(jp *jsonParameters) {
 		jp.columns = columns
 	}
 }
 
-func WithCompression(compression Compression) jsonParam {
+func WithCompression(compression Compression) Param {
 	return func(jp *jsonParameters) {
 		jp.compression = compression
 	}
 }
 
-func WithConvStr2Int(convInt2Str bool) jsonParam {
+func WithConvStr2Int(convInt2Str bool) Param {
 	return func(jp *jsonParameters) {
 		jp.convStr2Int = convInt2Str
 	}
 }
 
-func WithDateFormat(dateFormat string) jsonParam {
+func WithDateFormat(dateFormat string) Param {
 	return func(jp *jsonParameters) {
 		jp.dateformat = dateFormat
 	}
 }
 
-func WithFilename(filename bool) jsonParam {
+func WithFilename(filename bool) Param {
 	return func(jp *jsonParameters) {
 		jp.filename = filename
 	}
 }
 
-func WithFormat(format JsonFormat) jsonParam {
+func WithFormat(format Format) Param {
 	return func(jp *jsonParameters) {
 		jp.format = format
 	}
 }
 
-func WithHivePartitioning(hivePartitioning bool) jsonParam {
+func WithHivePartitioning(hivePartitioning bool) Param {
 	return func(jp *jsonParameters) {
 		jp.hivePartitioning = hivePartitioning
 	}
 }
 
-func WithIgnoreErrors(ignoreErrors bool) jsonParam {
+func WithIgnoreErrors(ignoreErrors bool) Param {
 	return func(jp *jsonParameters) {
 		jp.ignoreErrors = ignoreErrors
 	}
 }
 
-func WithMaxDepth(maxDepth int64) jsonParam {
+func WithMaxDepth(maxDepth int64) Param {
 	return func(jp *jsonParameters) {
 		jp.maxDepth = maxDepth
 	}
 }
 
-func WithMaxObjSize(maxObjSize uint64) jsonParam {
+func WithMaxObjSize(maxObjSize uint64) Param {
 	return func(jp *jsonParameters) {
 		jp.maxObjSize = maxObjSize
 	}
 }
 
-func WithRecords(records JsonRecords) jsonParam {
+func WithRecords(records Records) Param {
 	return func(jp *jsonParameters) {
 		jp.records = records
 	}
 }
 
-func WithSampleSize(sampleSize uint64) jsonParam {
+func WithSampleSize(sampleSize uint64) Param {
 	return func(jp *jsonParameters) {
 		jp.sampleSize = sampleSize
 	}
 }
 
-func WithTimestampFormat(timestampformat string) jsonParam {
+func WithTimestampFormat(timestampformat string) Param {
 	return func(jp *jsonParameters) {
 		jp.timestampformat = timestampformat
 	}
 }
 
-func WithUnionByName(unionByName bool) jsonParam {
+func WithUnionByName(unionByName bool) Param {
 	return func(jp *jsonParameters) {
 		jp.unionByName = unionByName
 	}
 }
 
-func getJsonParameters(params ...jsonParam) *jsonParameters {
+func New(params ...Param) *jsonParameters {
 	jsonParams := &jsonParameters{
 		columns:         make(map[string]string),
 		compression:     AutoCompression,

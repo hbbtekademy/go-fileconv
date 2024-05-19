@@ -7,6 +7,8 @@ import (
 	"path"
 	"strings"
 	"testing"
+
+	"github.com/hbbtekademy/parquet-converter/pkg/pqparam"
 )
 
 const testdataPath = "../../testdata"
@@ -26,10 +28,11 @@ func TestJson2Parquet(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed getting duckdb client. error: %v", err)
 	}
+	pqParams := pqparam.New()
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			err = conv.Json2Parquet(context.Background(), tc.inputJson, tc.outputParquet)
+			err = conv.Json2Parquet(context.Background(), tc.inputJson, tc.outputParquet, pqParams)
 			if err != nil {
 				t.Fatalf("failed converting json to parquet. error: %v", err)
 			}
