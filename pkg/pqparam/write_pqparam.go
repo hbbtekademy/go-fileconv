@@ -11,7 +11,6 @@ const (
 	Snappy Compression = "snappy"
 	Zstd   Compression = "zstd"
 	Gzip   Compression = "gzip"
-	LZ4    Compression = "LZ4"
 )
 
 type hivePartitionConfig struct {
@@ -24,7 +23,7 @@ type HivePartitionOption func(*hivePartitionConfig)
 
 const (
 	dfltOverwriteOrIgnore int8   = 0
-	dfltFilenamePattern   string = "data_{i}"
+	dfltFilenamePattern   string = "data_{i}.parquet"
 )
 
 func WithPartitionBy(partitionBy ...string) HivePartitionOption {
