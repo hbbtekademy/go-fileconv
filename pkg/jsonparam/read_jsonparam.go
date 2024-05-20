@@ -31,10 +31,29 @@ const (
 	False       Records = "false"
 )
 
+type Columns map[string]string
+
+func (c Columns) String() string {
+	if len(c) == 0 {
+		return ""
+	}
+
+	cols := []string{}
+	for k, v := range c {
+		cols = append(cols, fmt.Sprintf("%s: '%s'", k, v))
+	}
+
+	var sb strings.Builder
+	sb.WriteString("{")
+	sb.WriteString(strings.Join(cols, ","))
+	sb.WriteString("}")
+	return sb.String()
+}
+
 // Parameters for reading a JSON file
 type ReadParams struct {
 	autodetect       bool
-	columns          map[string]string
+	columns          Columns
 	compression      Compression
 	convStr2Int      bool
 	dateformat       string
@@ -88,7 +107,7 @@ Default empty
 
 https://duckdb.org/docs/data/json/overview#parameters
 */
-func WithColumns(columns map[string]string) ReadParam {
+func WithColumns(columns Columns) ReadParam {
 	return func(jp *ReadParams) {
 		jp.columns = columns
 	}
@@ -336,6 +355,10 @@ func (p *ReadParams) Params() string {
 
 	if p.unionByName {
 		params = append(params, "union_by_name = true")
+	}
+
+	if len(p.columns) > 0 {
+		params = append(params, fmt.Sprintf("columns = %s", p.columns))
 	}
 
 	prefix := ""
