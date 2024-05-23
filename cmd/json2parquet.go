@@ -35,7 +35,7 @@ type json2ParquetFlags struct {
 
 var json2parquetCmd = &cobra.Command{
 	Use:   "json2parquet",
-	Short: "convert json file/files to apache parquet file/files",
+	Short: "convert json files to apache parquet files",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		source, err := cmd.Flags().GetString("source")
