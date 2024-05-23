@@ -4,12 +4,17 @@ go 1.21
 
 toolchain go1.22.3
 
-require github.com/marcboeker/go-duckdb v1.6.4
+require (
+	github.com/marcboeker/go-duckdb v1.6.4
+	github.com/spf13/cobra v1.8.0
+	github.com/spf13/pflag v1.0.5
+)
 
 require (
 	github.com/apache/arrow/go/v14 v14.0.2 // indirect
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/google/flatbuffers v23.5.26+incompatible // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/klauspost/compress v1.16.7 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.5 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
