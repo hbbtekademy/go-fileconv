@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hbbtekademy/parquet-converter/pkg/pqparam"
+	"github.com/hbbtekademy/parquet-converter/pkg/param/pqparam"
 )
 
 const testdataPath = "../../testdata"

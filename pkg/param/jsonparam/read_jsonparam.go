@@ -3,15 +3,8 @@ package jsonparam
 import (
 	"fmt"
 	"strings"
-)
 
-type Compression string
-
-const (
-	None            Compression = "none"
-	Gzip            Compression = "gzip"
-	Zstd            Compression = "zstd"
-	AutoCompression Compression = "auto"
+	"github.com/hbbtekademy/parquet-converter/pkg/param"
 )
 
 type Format string
@@ -31,30 +24,11 @@ const (
 	False       Records = "false"
 )
 
-type Columns map[string]string
-
-func (c Columns) String() string {
-	if len(c) == 0 {
-		return ""
-	}
-
-	cols := []string{}
-	for k, v := range c {
-		cols = append(cols, fmt.Sprintf("%s: '%s'", k, v))
-	}
-
-	var sb strings.Builder
-	sb.WriteString("{")
-	sb.WriteString(strings.Join(cols, ","))
-	sb.WriteString("}")
-	return sb.String()
-}
-
 // Parameters for reading a JSON file
 type ReadParams struct {
 	autodetect       bool
-	columns          Columns
-	compression      Compression
+	columns          param.Columns
+	compression      param.Compression
 	convStr2Int      bool
 	dateformat       string
 	filename         bool
@@ -72,20 +46,20 @@ type ReadParams struct {
 type ReadParam func(*ReadParams)
 
 const (
-	dfltAutodetect      bool        = true
-	dfltCompression     Compression = AutoCompression
-	dfltConvStr2Int     bool        = false
-	dfltDateFormat      string      = "iso"
-	dfltFilename        bool        = false
-	dfltFormat          Format      = Array
-	dfltHivePartition   bool        = false
-	dfltIgnoreErrors    bool        = false
-	dfltMaxDept         int64       = -1
-	dfltMaxObjSize      uint64      = 16777216
-	dfltRecords         Records     = AutoRecords
-	dfltSampleSize      uint64      = 20480
-	dfltTimestampFormat string      = "iso"
-	dfltUnionByName     bool        = false
+	dfltAutodetect      bool              = true
+	dfltCompression     param.Compression = param.AutoCompression
+	dfltConvStr2Int     bool              = false
+	dfltDateFormat      string            = "iso"
+	dfltFilename        bool              = false
+	dfltFormat          Format            = Array
+	dfltHivePartition   bool              = false
+	dfltIgnoreErrors    bool              = false
+	dfltMaxDept         int64             = -1
+	dfltMaxObjSize      uint64            = 16777216
+	dfltRecords         Records           = AutoRecords
+	dfltSampleSize      uint64            = 20480
+	dfltTimestampFormat string            = "iso"
+	dfltUnionByName     bool              = false
 )
 
 /*
@@ -107,7 +81,7 @@ Default empty
 
 https://duckdb.org/docs/data/json/overview#parameters
 */
-func WithColumns(columns Columns) ReadParam {
+func WithColumns(columns param.Columns) ReadParam {
 	return func(jp *ReadParams) {
 		jp.columns = columns
 	}
@@ -119,7 +93,7 @@ By default this will be detected automatically from the file extension.
 
 https://duckdb.org/docs/data/json/overview#parameters
 */
-func WithCompression(compression Compression) ReadParam {
+func WithCompression(compression param.Compression) ReadParam {
 	return func(jp *ReadParams) {
 		jp.compression = compression
 	}

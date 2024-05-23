@@ -6,8 +6,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hbbtekademy/parquet-converter/pkg/jsonparam"
-	"github.com/hbbtekademy/parquet-converter/pkg/pqparam"
+	"github.com/hbbtekademy/parquet-converter/pkg/param/jsonparam"
+	"github.com/hbbtekademy/parquet-converter/pkg/param/pqparam"
 )
 
 // Convert json file/files to parquet file/files

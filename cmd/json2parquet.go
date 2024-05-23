@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hbbtekademy/parquet-converter/pkg/jsonparam"
+	"github.com/hbbtekademy/parquet-converter/pkg/param"
+	"github.com/hbbtekademy/parquet-converter/pkg/param/jsonparam"
+	"github.com/hbbtekademy/parquet-converter/pkg/param/pqparam"
 	"github.com/hbbtekademy/parquet-converter/pkg/pqconv"
-	"github.com/hbbtekademy/parquet-converter/pkg/pqparam"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -62,7 +63,7 @@ var json2parquetCmd = &cobra.Command{
 			),
 			jsonparam.WithAutoDetect(!jsonFlags.disableAutodetect),
 			jsonparam.WithColumns(jsonFlags.columns),
-			jsonparam.WithCompression(jsonparam.Compression(jsonFlags.compression)),
+			jsonparam.WithCompression(param.Compression(jsonFlags.compression)),
 			jsonparam.WithConvStr2Int(jsonFlags.convStr2Int),
 			jsonparam.WithDateFormat(jsonFlags.dateformat),
 			jsonparam.WithFilename(jsonFlags.filename),
