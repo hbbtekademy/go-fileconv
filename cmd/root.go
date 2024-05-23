@@ -50,9 +50,6 @@ func init() {
 }
 
 func registerGlobalFlags(rootCmd *cobra.Command) {
-	rootCmd.PersistentFlags().SortFlags = false
-	rootCmd.Flags().SortFlags = false
-
 	rootCmd.PersistentFlags().String(PQ_COMPRESSION, "snappy", "(Optional) The compression type for the output parquet file.")
 	rootCmd.PersistentFlags().StringSlice(PQ_PARTITION_BY, []string{}, "(Optional) Write to a Hive partitioned data set of Parquet files.")
 	rootCmd.PersistentFlags().Bool(PQ_OVERWRITE_OR_IGNORE, false, "(Optional) Use this flag to allow overwriting an existing directory.")
