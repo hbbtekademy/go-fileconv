@@ -25,12 +25,15 @@ const (
 	PQ_FILENAME_PATTERN    string = "pq-filename-pattern"
 	PQ_OVERWRITE_OR_IGNORE string = "pq-overwrite-or-ignore"
 	PQ_PER_THREAD_OUTPUT   string = "pq-per-thread-output"
+
+	VERSION = "v1.0.0, duckdb version: v0.10.2"
 )
 
 var rootCmd = &cobra.Command{
-	Use:   "pqconv-cli",
-	Short: "command line utility to convert files from/to apache parquet format",
-	Long:  ``,
+	Use:     "pqconv-cli",
+	Short:   "command line utility to convert files from/to apache parquet format",
+	Long:    ``,
+	Version: VERSION,
 	//Run:   func(cmd *cobra.Command, args []string) {},
 }
 
@@ -47,13 +50,14 @@ func init() {
 }
 
 func registerGlobalFlags(rootCmd *cobra.Command) {
+	rootCmd.PersistentFlags().SortFlags = false
+	rootCmd.Flags().SortFlags = false
+
 	rootCmd.PersistentFlags().String(PQ_COMPRESSION, "snappy", "(Optional) The compression type for the output parquet file.")
 	rootCmd.PersistentFlags().StringSlice(PQ_PARTITION_BY, []string{}, "(Optional) Write to a Hive partitioned data set of Parquet files.")
 	rootCmd.PersistentFlags().Bool(PQ_OVERWRITE_OR_IGNORE, false, "(Optional) Use this flag to allow overwriting an existing directory.")
 	rootCmd.PersistentFlags().String(PQ_FILENAME_PATTERN, "data_{i}.parquet", "(Optional) With this flag a pattern with {i} or {uuid} can be defined to create specific partition filenames.")
 	rootCmd.PersistentFlags().Bool(PQ_PER_THREAD_OUTPUT, false, "(Optional) If the final number of Parquet files is not important, writing one file per thread can significantly improve performance.")
-	rootCmd.PersistentFlags().SortFlags = false
-	rootCmd.Flags().SortFlags = false
 }
 
 func getPqWriteFlags(flags *pflag.FlagSet) (*pqWriteFlags, error) {

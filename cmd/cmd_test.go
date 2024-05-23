@@ -84,6 +84,7 @@ func TestGetJsonReadFlags(t *testing.T) {
 				sampleSize:        20480,
 				timestampformat:   "iso",
 				unionByName:       false,
+				columns:           map[string]string{},
 			},
 		},
 		{
@@ -103,6 +104,7 @@ func TestGetJsonReadFlags(t *testing.T) {
 				cmd.LocalFlags().Set("hive-partitioning", "true")
 				cmd.LocalFlags().Set("ignore-errors", "true")
 				cmd.LocalFlags().Set("union-by-name", "true")
+				cmd.LocalFlags().Set("columns", "key1:INTEGER,key:2:VARCHAR")
 			},
 			expectedFlags: &json2ParquetFlags{
 				disableAutodetect: true,
@@ -119,6 +121,10 @@ func TestGetJsonReadFlags(t *testing.T) {
 				sampleSize:        10,
 				timestampformat:   "%d",
 				unionByName:       true,
+				columns: map[string]string{
+					"key1":  "INTEGER",
+					"key:2": "VARCHAR",
+				},
 			},
 		},
 	}

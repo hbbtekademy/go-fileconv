@@ -5,6 +5,8 @@ package cmd
 
 import (
 	"context"
+	"fmt"
+	"strings"
 
 	"github.com/hbbtekademy/parquet-converter/pkg/jsonparam"
 	"github.com/hbbtekademy/parquet-converter/pkg/pqconv"
@@ -28,6 +30,7 @@ type json2ParquetFlags struct {
 	sampleSize        uint64
 	timestampformat   string
 	unionByName       bool
+	columns           map[string]string
 }
 
 var json2parquetCmd = &cobra.Command{
@@ -61,7 +64,7 @@ var json2parquetCmd = &cobra.Command{
 				),
 			),
 			jsonparam.WithAutoDetect(!jsonFlags.disableAutodetect),
-			jsonparam.WithColumns(map[string]string{}),
+			jsonparam.WithColumns(jsonFlags.columns),
 			jsonparam.WithCompression(jsonparam.Compression(jsonFlags.compression)),
 			jsonparam.WithConvStr2Int(jsonFlags.convStr2Int),
 			jsonparam.WithDateFormat(jsonFlags.dateformat),
@@ -86,6 +89,8 @@ func init() {
 }
 
 func registerJson2ParquetFlags(json2parquetCmd *cobra.Command) {
+	json2parquetCmd.Flags().SortFlags = false
+
 	json2parquetCmd.Flags().String("source", "", "full path of json file or regex for multiple json files.")
 	err := json2parquetCmd.MarkFlagRequired("source")
 	checkErr("failed setting source flag as required", err)
@@ -96,6 +101,7 @@ func registerJson2ParquetFlags(json2parquetCmd *cobra.Command) {
 
 	json2parquetCmd.LocalFlags().Bool("disable-autodetect", false, "(Optional) Disable automatically detecting the names of the keys and data types of the values.")
 	json2parquetCmd.LocalFlags().String("compression", "auto", "(Optional) The compression type for the file (auto, gzip, zstd).")
+	json2parquetCmd.LocalFlags().StringSlice("columns", []string{}, `(Optional) A list of key names and value types contained within the JSON file. (e.g., "key1:INTEGER,key2:VARCHAR"). If auto detect is enabled these will be inferred.`)
 	json2parquetCmd.LocalFlags().String("format", "array", "(Optional) Can be one of ('auto', 'unstructured', 'newline_delimited', 'array').")
 	json2parquetCmd.LocalFlags().String("dateformat", "iso", "(Optional) Specifies the date format to use when parsing dates. https://duckdb.org/docs/sql/functions/dateformat")
 	json2parquetCmd.LocalFlags().String("timestampformat", "iso", "(Optional) Specifies the date format to use when parsing timestamps. https://duckdb.org/docs/sql/functions/dateformat")
@@ -108,9 +114,6 @@ func registerJson2ParquetFlags(json2parquetCmd *cobra.Command) {
 	json2parquetCmd.LocalFlags().Bool("hive-partitioning", false, "(Optional) Whether or not to interpret the path as a Hive partitioned path.")
 	json2parquetCmd.LocalFlags().Bool("ignore-errors", false, "(Optional) Whether to ignore parse errors (only possible when format is 'newline_delimited').")
 	json2parquetCmd.LocalFlags().Bool("union-by-name", false, "(Optional) Whether the schema’s of multiple JSON files should be unified.")
-
-	json2parquetCmd.Flags().SortFlags = false
-
 }
 
 func getJsonReadFlags(flags *pflag.FlagSet) (*json2ParquetFlags, error) {
@@ -170,6 +173,23 @@ func getJsonReadFlags(flags *pflag.FlagSet) (*json2ParquetFlags, error) {
 	if err != nil {
 		return nil, err
 	}
+	columns := map[string]string{}
+	cols, err := flags.GetStringSlice("columns")
+	if err != nil {
+		return nil, err
+	}
+	for _, col := range cols {
+		keyDataType := strings.Split(col, ":")
+		l := len(keyDataType)
+		switch {
+		case l < 2:
+			return nil, fmt.Errorf("incorrect columns format: %s", strings.Join(cols, ","))
+		case l == 2:
+			columns[keyDataType[0]] = keyDataType[1]
+		case l > 2:
+			columns[strings.Join(keyDataType[0:l-1], ":")] = keyDataType[l-1]
+		}
+	}
 
 	return &json2ParquetFlags{
 		disableAutodetect: disableAutodetect,
@@ -186,5 +206,6 @@ func getJsonReadFlags(flags *pflag.FlagSet) (*json2ParquetFlags, error) {
 		sampleSize:        sampleSize,
 		timestampformat:   timestampformat,
 		unionByName:       unionByName,
+		columns:           columns,
 	}, nil
 }
