@@ -28,7 +28,7 @@ Flags:
   -h, --help                         help for pqconv-cli
   -v, --version                      version for pqconv-cli
 ```
-#### CLI json2parquet
+#### json2parquet
 ```
 ./pqconv-cli json2parquet -h
 convert json files to apache parquet files (https://duckdb.org/docs/data/json/overview#parameters)
@@ -58,7 +58,7 @@ Flags:
   -h, --help                     help for json2parquet
 ```
 
-#### CLI: csv2parquet
+#### csv2parquet
 ```
 ./pqconv-cli csv2parquet -h
 convert csv files to apache parquet files (https://duckdb.org/docs/data/csv/overview#parameters)
