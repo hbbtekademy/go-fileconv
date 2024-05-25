@@ -7,15 +7,13 @@ import (
 	"github.com/hbbtekademy/parquet-converter/pkg/param"
 )
 
-type Columns map[string]string
-
 // Parameters for reading a CSV file
 type ReadParams struct {
 	allVarchar         bool
 	allowQuotedNulls   bool
 	autoDetect         bool
 	autoTypeCandidates []string
-	columns            Columns
+	columns            param.Columns
 	compression        param.Compression
 	dateformat         string
 	decimalSeparator   string
@@ -37,7 +35,7 @@ type ReadParams struct {
 	sampleSize         int64
 	skip               int64
 	timestampformat    string
-	types              []string
+	types              param.Columns
 	unionByName        bool
 }
 
@@ -86,13 +84,13 @@ func WithAutoDetect(autodetect bool) ReadParam {
 	}
 }
 
-func WithautoTypeCandidates(autoTypeCandidates []string) ReadParam {
+func WithAutoTypeCandidates(autoTypeCandidates []string) ReadParam {
 	return func(rp *ReadParams) {
 		rp.autoTypeCandidates = autoTypeCandidates
 	}
 }
 
-func WithColumns(columns Columns) ReadParam {
+func WithColumns(columns param.Columns) ReadParam {
 	return func(rp *ReadParams) {
 		rp.columns = columns
 	}
@@ -218,13 +216,13 @@ func WithSkip(skip int64) ReadParam {
 	}
 }
 
-func WithTimestampformat(timestampformat string) ReadParam {
+func WithTimestampFormat(timestampformat string) ReadParam {
 	return func(rp *ReadParams) {
 		rp.timestampformat = timestampformat
 	}
 }
 
-func WithTypes(types []string) ReadParam {
+func WithTypes(types param.Columns) ReadParam {
 	return func(rp *ReadParams) {
 		rp.types = types
 	}
@@ -243,7 +241,7 @@ func NewReadParams(params ...ReadParam) *ReadParams {
 		allowQuotedNulls:   dfltAllowQuotedNulls,
 		autoDetect:         dfltAutoDetect,
 		autoTypeCandidates: []string{},
-		columns:            make(Columns),
+		columns:            make(param.Columns),
 		compression:        dfltCompression,
 		dateformat:         dfltDateformat,
 		decimalSeparator:   dfltDecimalSeparator,
@@ -265,7 +263,7 @@ func NewReadParams(params ...ReadParam) *ReadParams {
 		sampleSize:         dfltSampleSize,
 		skip:               dfltSkip,
 		timestampformat:    dfltTimestampformat,
-		types:              []string{},
+		types:              make(param.Columns),
 		unionByName:        dfltUnionByName,
 	}
 
@@ -290,10 +288,10 @@ func (p *ReadParams) Params() string {
 		params = append(params, "auto_detect = false")
 	}
 	if len(p.autoTypeCandidates) > 0 {
-		params = append(params, "") //TODO
+		params = append(params, fmt.Sprintf("auto_type_candidates = ['%s']", strings.Join(p.autoTypeCandidates, "','")))
 	}
 	if len(p.columns) > 0 {
-		params = append(params, fmt.Sprintf("columns = %s", p.columns))
+		params = append(params, fmt.Sprintf("columns = %s", p.columns.Str(true)))
 	}
 	if p.compression != dfltCompression {
 		params = append(params, fmt.Sprintf("compression = '%s'", p.compression))
@@ -305,16 +303,16 @@ func (p *ReadParams) Params() string {
 		params = append(params, fmt.Sprintf("decimal_separator = '%s'", p.decimalSeparator))
 	}
 	if p.delim != dfltDelim {
-		params = append(params, "")
+		params = append(params, fmt.Sprintf("delim = '%s'", p.delim))
 	}
 	if p.escape != dfltEscape {
-		params = append(params, "")
+		params = append(params, fmt.Sprintf("escape = '%s'", p.escape))
 	}
 	if p.filename {
 		params = append(params, "filename = true")
 	}
 	if len(p.forceNotNull) > 0 {
-		params = append(params, "")
+		params = append(params, fmt.Sprintf("force_not_null = ['%s']", strings.Join(p.forceNotNull, "','")))
 	}
 	if p.header {
 		params = append(params, "header = true")
@@ -329,10 +327,10 @@ func (p *ReadParams) Params() string {
 		params = append(params, fmt.Sprintf("max_line_size = %d", p.maxLineSize))
 	}
 	if len(p.names) > 0 {
-		params = append(params, "")
+		params = append(params, fmt.Sprintf("names = ['%s']", strings.Join(p.names, "','")))
 	}
 	if p.newLine != dfltNewLine {
-		params = append(params, "")
+		params = append(params, fmt.Sprintf("new_line = '%s'", p.newLine))
 	}
 	if p.normalizeNames {
 		params = append(params, "normalize_names = true")
@@ -341,13 +339,13 @@ func (p *ReadParams) Params() string {
 		params = append(params, "null_padding = true")
 	}
 	if len(p.nullStr) > 0 {
-		params = append(params, "")
+		params = append(params, fmt.Sprintf("nullstr = ['%s']", strings.Join(p.nullStr, "','")))
 	}
 	if p.parallel {
 		params = append(params, "parallel = true")
 	}
 	if p.quote != dfltQuote {
-		params = append(params, "")
+		params = append(params, fmt.Sprintf("quote = '%s'", p.quote))
 	}
 	if p.sampleSize != dfltSampleSize {
 		params = append(params, fmt.Sprintf("sample_size = %d", p.sampleSize))
@@ -359,7 +357,7 @@ func (p *ReadParams) Params() string {
 		params = append(params, fmt.Sprintf("timestampformat = '%s'", p.timestampformat))
 	}
 	if len(p.types) > 0 {
-		params = append(params, "")
+		params = append(params, fmt.Sprintf("types = %s", p.types.Str(true)))
 	}
 	if p.unionByName {
 		params = append(params, "union_by_name = true")

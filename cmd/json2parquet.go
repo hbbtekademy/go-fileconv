@@ -37,7 +37,7 @@ var json2parquetCmd = &cobra.Command{
 	Short: "convert json files to apache parquet files",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := runCmd(cmd)
+		err := runJson2ParquetCmd(cmd)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -50,7 +50,7 @@ func init() {
 	registerJson2ParquetFlags(json2parquetCmd)
 }
 
-func runCmd(cmd *cobra.Command) error {
+func runJson2ParquetCmd(cmd *cobra.Command) error {
 	source, err := cmd.Flags().GetString("source")
 	if err != nil {
 		return fmt.Errorf("error: %w. failed getting source flag", err)

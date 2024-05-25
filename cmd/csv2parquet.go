@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -13,12 +14,21 @@ var csv2parquetCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("csv2parquet called")
+		err := runCsv2ParquetCmd(cmd)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(csv2parquetCmd)
 	registerCsv2ParquetFlags(csv2parquetCmd)
+}
+
+func runCsv2ParquetCmd(cmd *cobra.Command) error {
+	return nil
 }
 
 func registerCsv2ParquetFlags(cmd *cobra.Command) {

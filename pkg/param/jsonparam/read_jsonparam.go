@@ -332,7 +332,7 @@ func (p *ReadParams) Params() string {
 	}
 
 	if len(p.columns) > 0 {
-		params = append(params, fmt.Sprintf("columns = %s", p.columns))
+		params = append(params, fmt.Sprintf("columns = %s", p.columns.Str(false)))
 	}
 
 	prefix := ""

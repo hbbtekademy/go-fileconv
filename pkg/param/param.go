@@ -16,14 +16,18 @@ const (
 
 type Columns map[string]string
 
-func (c Columns) String() string {
+func (c Columns) Str(quoteKeys bool) string {
 	if len(c) == 0 {
 		return ""
 	}
 
 	cols := []string{}
 	for k, v := range c {
-		cols = append(cols, fmt.Sprintf("%s: '%s'", k, v))
+		if quoteKeys {
+			cols = append(cols, fmt.Sprintf("'%s': '%s'", k, v))
+		} else {
+			cols = append(cols, fmt.Sprintf("%s: '%s'", k, v))
+		}
 	}
 
 	var sb strings.Builder
