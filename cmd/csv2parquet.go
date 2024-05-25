@@ -49,7 +49,6 @@ var csv2parquetCmd = &cobra.Command{
 	Short: "convert csv files to apache parquet files (https://duckdb.org/docs/data/csv/overview#parameters)",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("csv2parquet called")
 		err := runCsv2ParquetCmd(cmd)
 		if err != nil {
 			fmt.Println(err)
@@ -151,7 +150,7 @@ func registerCsv2ParquetFlags(cmd *cobra.Command) {
 	cmd.Flags().String("quote", `"`, "(Optional) Specifies the quoting string to be used when a data value is quoted.")
 	cmd.Flags().String("new-line", "", "(Optional) Set the new line character(s) in the file. Options are '\\r','\\n', or '\\r\\n'.")
 	cmd.Flags().String("decimal-sep", ".", "(Optional) The decimal separator of numbers.")
-	cmd.Flags().String("escape", ".", "(Optional) Specifies the string that should appear before a data character sequence that matches the quote value.")
+	cmd.Flags().String("escape", `"`, "(Optional) Specifies the string that should appear before a data character sequence that matches the quote value.")
 	cmd.Flags().String("dateformat", "", "(Optional) Specifies the date format to use when parsing dates. https://duckdb.org/docs/sql/functions/dateformat")
 	cmd.Flags().String("timestampformat", "", "(Optional) Specifies the date format to use when parsing timestamps. https://duckdb.org/docs/sql/functions/dateformat")
 	cmd.Flags().String("compression", "auto", "(Optional) The compression type for the file (auto, gzip, zstd).")
@@ -296,6 +295,9 @@ func getCsvReadFlags(flags *pflag.FlagSet) (*csv2ParquetFlags, error) {
 	types, err := getColumnsFlag(flags, "types")
 	if err != nil {
 		return nil, err
+	}
+	if len(columns) > 0 {
+		disableAutodetect = true
 	}
 
 	return &csv2ParquetFlags{

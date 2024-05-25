@@ -4,6 +4,8 @@ import (
 	"context"
 	"testing"
 
+	"github.com/hbbtekademy/parquet-converter/pkg/param"
+	"github.com/hbbtekademy/parquet-converter/pkg/param/csvparam"
 	"github.com/hbbtekademy/parquet-converter/pkg/param/pqparam"
 )
 
@@ -12,6 +14,7 @@ func TestCsv2Parquet(t *testing.T) {
 		name                          string
 		setup                         func() error
 		pqParams                      []pqparam.WriteParam
+		csvReadParams                 []csvparam.ReadParam
 		inputCsv                      string
 		outputParquet                 string
 		outputPartitionedParquetRegex string
@@ -23,9 +26,50 @@ func TestCsv2Parquet(t *testing.T) {
 				pqparam.WithCompression(pqparam.Zstd),
 				pqparam.WithRowGroupSize(50),
 			},
-			inputCsv:         "../../testdata/iris150.csv",
-			outputParquet:    "../../testdata/iris150_csv.parquet",
+			csvReadParams: []csvparam.ReadParam{
+				csvparam.WithHeader(true),
+				csvparam.WithColumns(param.Columns{
+					"sepal_length": "VARCHAR",
+					"sepal_width":  "INTEGER",
+					"petal_length": "INTEGER",
+					"petal_width":  "DOUBLE",
+					"species":      "VARCHAR",
+				}),
+			},
+			inputCsv:         "../../testdata/csv/iris150.csv",
+			outputParquet:    "../../testdata/csv/iris150.parquet",
 			expectedRowCount: 150,
+		},
+		{
+			name: "TC2",
+			pqParams: []pqparam.WriteParam{
+				pqparam.WithCompression(pqparam.Zstd),
+				pqparam.WithRowGroupSize(50),
+			},
+			csvReadParams: []csvparam.ReadParam{
+				csvparam.WithHeader(false),
+				csvparam.WithNames([]string{"sepal_length", "sepal_width", "petal_length", "petal_width"}),
+			},
+			inputCsv:         "../../testdata/csv/iris150_noheader.csv",
+			outputParquet:    "../../testdata/csv/iris150_noheader.parquet",
+			expectedRowCount: 150,
+		},
+		{
+			name: "TC3",
+			pqParams: []pqparam.WriteParam{
+				pqparam.WithCompression(pqparam.Zstd),
+				pqparam.WithRowGroupSize(50),
+			},
+			csvReadParams: []csvparam.ReadParam{
+				csvparam.WithHeader(false),
+				csvparam.WithNames([]string{"sepal_length", "sepal_width", "petal_length", "petal_width"}),
+				csvparam.WithTypes(param.Columns{
+					"sepal_length": "VARCHAR",
+				}),
+			},
+			inputCsv:         "../../testdata/csv/iris5_quotedNumber.csv",
+			outputParquet:    "../../testdata/csv/iris5_quotedNumber.parquet",
+			expectedRowCount: 5,
 		},
 	}
 
@@ -43,9 +87,11 @@ func TestCsv2Parquet(t *testing.T) {
 				}
 			}
 
-			err = conv.Csv2Parquet(context.Background(), tc.inputCsv, tc.outputParquet, pqparam.NewWriteParams(tc.pqParams...))
+			err = conv.Csv2Parquet(context.Background(), tc.inputCsv, tc.outputParquet,
+				pqparam.NewWriteParams(tc.pqParams...),
+				tc.csvReadParams...)
 			if err != nil {
-				t.Fatalf("failed converting json to parquet. error: %v", err)
+				t.Fatalf("failed converting csv to parquet. error: %v", err)
 			}
 
 			err = validateParquetOutput(conv, tc.outputParquet, tc.outputPartitionedParquetRegex, tc.expectedRowCount)

@@ -31,25 +31,25 @@ func TestJson2Parquet(t *testing.T) {
 				pqparam.WithCompression(pqparam.Zstd),
 				pqparam.WithRowGroupSize(50),
 			},
-			inputJson:        "../../testdata/iris150.json",
-			outputParquet:    "../../testdata/iris150.parquet",
+			inputJson:        "../../testdata/json/iris150.json",
+			outputParquet:    "../../testdata/json/iris150.parquet",
 			expectedRowCount: 150,
 		},
 		{
 			name:             "TC2",
 			pqParams:         []pqparam.WriteParam{},
-			inputJson:        "../../testdata/iris*.json",
-			outputParquet:    "../../testdata/iris155.parquet",
+			inputJson:        "../../testdata/json/iris*.json",
+			outputParquet:    "../../testdata/json/iris155.parquet",
 			expectedRowCount: 155,
 		},
 		{
 			name: "TC3",
 			setup: func() error {
-				err := os.RemoveAll("../../testdata/partition")
+				err := os.RemoveAll("../../testdata/json/partition")
 				if err != nil {
 					return err
 				}
-				return os.Mkdir("../../testdata/partition", 0700)
+				return os.Mkdir("../../testdata/json/partition", 0700)
 			},
 			pqParams: []pqparam.WriteParam{
 				pqparam.WithHivePartitionConfig(
@@ -58,9 +58,9 @@ func TestJson2Parquet(t *testing.T) {
 					pqparam.WithOverwriteOrIgnore(true),
 				),
 			},
-			inputJson:                     "../../testdata/iris150.json",
-			outputParquet:                 "../../testdata/partition",
-			outputPartitionedParquetRegex: "../../testdata/partition/species*/iris_*.parquet",
+			inputJson:                     "../../testdata/json/iris150.json",
+			outputParquet:                 "../../testdata/json/partition",
+			outputPartitionedParquetRegex: "../../testdata/json/partition/species*/iris_*.parquet",
 			expectedRowCount:              150,
 		},
 	}
