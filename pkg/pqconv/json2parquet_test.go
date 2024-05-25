@@ -84,23 +84,32 @@ func TestJson2Parquet(t *testing.T) {
 				t.Fatalf("failed converting json to parquet. error: %v", err)
 			}
 
-			parquetFile := tc.outputParquet
-			if tc.outputPartitionedParquetRegex != "" {
-				parquetFile = tc.outputPartitionedParquetRegex
-			}
-
-			rowcount := 0
-			if err = conv.db.QueryRowContext(context.Background(),
-				fmt.Sprintf("select count(1) from '%s'", parquetFile)).Scan(&rowcount); err != nil {
-				t.Fatalf("failed validating parquet rowcount. error: %v", err)
-			}
-
-			if rowcount != tc.expectedRowCount {
-				t.Fatalf("expected: %d rows but got: %d", tc.expectedRowCount, rowcount)
+			err = validateParquetOutput(conv, tc.outputParquet, tc.outputPartitionedParquetRegex, tc.expectedRowCount)
+			if err != nil {
+				t.Fatal(err)
 			}
 			defer deleteOutput(tc.outputParquet)
 		})
 	}
+}
+
+func validateParquetOutput(conv *pqconv, outputParquet, outputPartitionedParquetRegex string, expectedRowCount int) error {
+	parquetFile := outputParquet
+	if outputPartitionedParquetRegex != "" {
+		parquetFile = outputPartitionedParquetRegex
+	}
+
+	rowcount := 0
+	if err := conv.db.QueryRowContext(context.Background(),
+		fmt.Sprintf("select count(1) from '%s'", parquetFile)).Scan(&rowcount); err != nil {
+		return fmt.Errorf("failed validating parquet rowcount. error: %v", err)
+	}
+
+	if rowcount != expectedRowCount {
+		return fmt.Errorf("expected: %d rows but got: %d", expectedRowCount, rowcount)
+	}
+
+	return nil
 }
 
 func deleteOutput(outputPath string) error {
