@@ -1,6 +1,10 @@
 package jsonparam
 
-import "testing"
+import (
+	"testing"
+
+	"github.com/hbbtekademy/parquet-converter/pkg/param"
+)
 
 func TestReadParams(t *testing.T) {
 	tests := []struct {
@@ -17,7 +21,7 @@ func TestReadParams(t *testing.T) {
 			name: "TC2",
 			params: []ReadParam{
 				WithAutoDetect(false),
-				WithCompression(Gzip),
+				WithCompression(param.Gzip),
 				WithConvStr2Int(true),
 				WithDateFormat("%d"),
 				WithFilename(true),

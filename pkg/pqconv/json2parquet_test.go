@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/hbbtekademy/parquet-converter/pkg/pqparam"
+	"github.com/hbbtekademy/parquet-converter/pkg/param/pqparam"
 )
 
 const testdataPath = "../../testdata"
@@ -31,25 +31,25 @@ func TestJson2Parquet(t *testing.T) {
 				pqparam.WithCompression(pqparam.Zstd),
 				pqparam.WithRowGroupSize(50),
 			},
-			inputJson:        "../../testdata/iris150.json",
-			outputParquet:    "../../testdata/iris150.parquet",
+			inputJson:        "../../testdata/json/iris150.json",
+			outputParquet:    "../../testdata/json/iris150.parquet",
 			expectedRowCount: 150,
 		},
 		{
 			name:             "TC2",
 			pqParams:         []pqparam.WriteParam{},
-			inputJson:        "../../testdata/iris*.json",
-			outputParquet:    "../../testdata/iris155.parquet",
+			inputJson:        "../../testdata/json/iris*.json",
+			outputParquet:    "../../testdata/json/iris155.parquet",
 			expectedRowCount: 155,
 		},
 		{
 			name: "TC3",
 			setup: func() error {
-				err := os.RemoveAll("../../testdata/partition")
+				err := os.RemoveAll("../../testdata/json/partition")
 				if err != nil {
 					return err
 				}
-				return os.Mkdir("../../testdata/partition", 0700)
+				return os.Mkdir("../../testdata/json/partition", 0700)
 			},
 			pqParams: []pqparam.WriteParam{
 				pqparam.WithHivePartitionConfig(
@@ -58,9 +58,9 @@ func TestJson2Parquet(t *testing.T) {
 					pqparam.WithOverwriteOrIgnore(true),
 				),
 			},
-			inputJson:                     "../../testdata/iris150.json",
-			outputParquet:                 "../../testdata/partition",
-			outputPartitionedParquetRegex: "../../testdata/partition/species*/iris_*.parquet",
+			inputJson:                     "../../testdata/json/iris150.json",
+			outputParquet:                 "../../testdata/json/partition",
+			outputPartitionedParquetRegex: "../../testdata/json/partition/species*/iris_*.parquet",
 			expectedRowCount:              150,
 		},
 	}
@@ -84,23 +84,32 @@ func TestJson2Parquet(t *testing.T) {
 				t.Fatalf("failed converting json to parquet. error: %v", err)
 			}
 
-			parquetFile := tc.outputParquet
-			if tc.outputPartitionedParquetRegex != "" {
-				parquetFile = tc.outputPartitionedParquetRegex
-			}
-
-			rowcount := 0
-			if err = conv.db.QueryRowContext(context.Background(),
-				fmt.Sprintf("select count(1) from '%s'", parquetFile)).Scan(&rowcount); err != nil {
-				t.Fatalf("failed validating parquet rowcount. error: %v", err)
-			}
-
-			if rowcount != tc.expectedRowCount {
-				t.Fatalf("expected: %d rows but got: %d", tc.expectedRowCount, rowcount)
+			err = validateParquetOutput(conv, tc.outputParquet, tc.outputPartitionedParquetRegex, tc.expectedRowCount)
+			if err != nil {
+				t.Fatal(err)
 			}
 			defer deleteOutput(tc.outputParquet)
 		})
 	}
+}
+
+func validateParquetOutput(conv *pqconv, outputParquet, outputPartitionedParquetRegex string, expectedRowCount int) error {
+	parquetFile := outputParquet
+	if outputPartitionedParquetRegex != "" {
+		parquetFile = outputPartitionedParquetRegex
+	}
+
+	rowcount := 0
+	if err := conv.db.QueryRowContext(context.Background(),
+		fmt.Sprintf("select count(1) from '%s'", parquetFile)).Scan(&rowcount); err != nil {
+		return fmt.Errorf("failed validating parquet rowcount. error: %v", err)
+	}
+
+	if rowcount != expectedRowCount {
+		return fmt.Errorf("expected: %d rows but got: %d", expectedRowCount, rowcount)
+	}
+
+	return nil
 }
 
 func deleteOutput(outputPath string) error {

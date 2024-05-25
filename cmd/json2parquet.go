@@ -1,16 +1,14 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
 	"context"
 	"fmt"
-	"strings"
+	"os"
 
-	"github.com/hbbtekademy/parquet-converter/pkg/jsonparam"
+	"github.com/hbbtekademy/parquet-converter/pkg/param"
+	"github.com/hbbtekademy/parquet-converter/pkg/param/jsonparam"
+	"github.com/hbbtekademy/parquet-converter/pkg/param/pqparam"
 	"github.com/hbbtekademy/parquet-converter/pkg/pqconv"
-	"github.com/hbbtekademy/parquet-converter/pkg/pqparam"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -35,57 +33,80 @@ type json2ParquetFlags struct {
 
 var json2parquetCmd = &cobra.Command{
 	Use:   "json2parquet",
-	Short: "convert json file/files to apache parquet file/files",
+	Short: "convert json files to apache parquet files (https://duckdb.org/docs/data/json/overview#parameters)",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		source, err := cmd.Flags().GetString("source")
-		checkErr("failed getting source flag.", err)
-
-		dest, err := cmd.Flags().GetString("dest")
-		checkErr("failed getting dest flag.", err)
-
-		pqWriteFlags, err := getPqWriteFlags(cmd.Parent().PersistentFlags())
-		checkErr("failed getting parquet write flags.", err)
-
-		jsonFlags, err := getJsonReadFlags(cmd.Flags())
-		checkErr("failed getting json read flags.", err)
-
-		client, err := pqconv.New(context.Background(), "")
-		checkErr("failed getting duckdb client.", err)
-
-		err = client.Json2Parquet(context.Background(), source, dest,
-			pqparam.NewWriteParams(
-				pqparam.WithCompression(pqparam.Compression(pqWriteFlags.compression)),
-				pqparam.WithPerThreadOutput(pqWriteFlags.perThreadOutput),
-				pqparam.WithHivePartitionConfig(
-					pqparam.WithFilenamePattern(pqWriteFlags.filenamePattern),
-					pqparam.WithOverwriteOrIgnore(pqWriteFlags.overwriteOrIgnore),
-					pqparam.WithPartitionBy(pqWriteFlags.partitionBy...),
-				),
-			),
-			jsonparam.WithAutoDetect(!jsonFlags.disableAutodetect),
-			jsonparam.WithColumns(jsonFlags.columns),
-			jsonparam.WithCompression(jsonparam.Compression(jsonFlags.compression)),
-			jsonparam.WithConvStr2Int(jsonFlags.convStr2Int),
-			jsonparam.WithDateFormat(jsonFlags.dateformat),
-			jsonparam.WithFilename(jsonFlags.filename),
-			jsonparam.WithFormat(jsonparam.Format(jsonFlags.format)),
-			jsonparam.WithHivePartitioning(jsonFlags.hivePartitioning),
-			jsonparam.WithIgnoreErrors(jsonFlags.ignoreErrors),
-			jsonparam.WithMaxDepth(jsonFlags.maxDepth),
-			jsonparam.WithMaxObjSize(jsonFlags.maxObjSize),
-			jsonparam.WithRecords(jsonparam.Records(jsonFlags.records)),
-			jsonparam.WithSampleSize(jsonFlags.sampleSize),
-			jsonparam.WithTimestampFormat(jsonFlags.timestampformat),
-			jsonparam.WithUnionByName(jsonFlags.unionByName),
-		)
-		checkErr("failed converting json to parquet.", err)
+		err := runJson2ParquetCmd(cmd)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(json2parquetCmd)
 	registerJson2ParquetFlags(json2parquetCmd)
+}
+
+func runJson2ParquetCmd(cmd *cobra.Command) error {
+	source, err := cmd.Flags().GetString("source")
+	if err != nil {
+		return fmt.Errorf("error: %w. failed getting source flag", err)
+	}
+
+	dest, err := cmd.Flags().GetString("dest")
+	if err != nil {
+		return fmt.Errorf("error: %w. failed getting dest flag", err)
+	}
+
+	pqWriteFlags, err := getPqWriteFlags(cmd.Root().PersistentFlags())
+	if err != nil {
+		return fmt.Errorf("error: %w. failed getting parquet write flags", err)
+	}
+
+	jsonFlags, err := getJsonReadFlags(cmd.Flags())
+	if err != nil {
+		return fmt.Errorf("error: %w. failed getting json read flags", err)
+	}
+
+	dbFile := getDBFile(cmd)
+	defer deleteDBFile(dbFile)
+	client, err := pqconv.New(context.Background(), dbFile)
+	if err != nil {
+		return fmt.Errorf("error: %w. failed getting duckdb client", err)
+	}
+
+	err = client.Json2Parquet(context.Background(), source, dest,
+		pqparam.NewWriteParams(
+			pqparam.WithCompression(pqparam.Compression(pqWriteFlags.compression)),
+			pqparam.WithPerThreadOutput(pqWriteFlags.perThreadOutput),
+			pqparam.WithHivePartitionConfig(
+				pqparam.WithFilenamePattern(pqWriteFlags.filenamePattern),
+				pqparam.WithOverwriteOrIgnore(pqWriteFlags.overwriteOrIgnore),
+				pqparam.WithPartitionBy(pqWriteFlags.partitionBy...),
+			),
+		),
+		jsonparam.WithAutoDetect(!jsonFlags.disableAutodetect),
+		jsonparam.WithColumns(jsonFlags.columns),
+		jsonparam.WithCompression(param.Compression(jsonFlags.compression)),
+		jsonparam.WithConvStr2Int(jsonFlags.convStr2Int),
+		jsonparam.WithDateFormat(jsonFlags.dateformat),
+		jsonparam.WithFilename(jsonFlags.filename),
+		jsonparam.WithFormat(jsonparam.Format(jsonFlags.format)),
+		jsonparam.WithHivePartitioning(jsonFlags.hivePartitioning),
+		jsonparam.WithIgnoreErrors(jsonFlags.ignoreErrors),
+		jsonparam.WithMaxDepth(jsonFlags.maxDepth),
+		jsonparam.WithMaxObjSize(jsonFlags.maxObjSize),
+		jsonparam.WithRecords(jsonparam.Records(jsonFlags.records)),
+		jsonparam.WithSampleSize(jsonFlags.sampleSize),
+		jsonparam.WithTimestampFormat(jsonFlags.timestampformat),
+		jsonparam.WithUnionByName(jsonFlags.unionByName),
+	)
+	if err != nil {
+		return fmt.Errorf("error: %w. failed converting json to parquet", err)
+	}
+	return nil
 }
 
 func registerJson2ParquetFlags(json2parquetCmd *cobra.Command) {
@@ -113,7 +134,7 @@ func registerJson2ParquetFlags(json2parquetCmd *cobra.Command) {
 	json2parquetCmd.Flags().Bool("filename", false, "(Optional) Whether or not an extra filename column should be included in the result.")
 	json2parquetCmd.Flags().Bool("hive-partitioning", false, "(Optional) Whether or not to interpret the path as a Hive partitioned path.")
 	json2parquetCmd.Flags().Bool("ignore-errors", false, "(Optional) Whether to ignore parse errors (only possible when format is 'newline_delimited').")
-	json2parquetCmd.Flags().Bool("union-by-name", false, "(Optional) Whether the schema’s of multiple JSON files should be unified.")
+	json2parquetCmd.Flags().Bool("union-by-name", false, "(Optional) Whether the schema's of multiple JSON files should be unified.")
 }
 
 func getJsonReadFlags(flags *pflag.FlagSet) (*json2ParquetFlags, error) {
@@ -173,22 +194,9 @@ func getJsonReadFlags(flags *pflag.FlagSet) (*json2ParquetFlags, error) {
 	if err != nil {
 		return nil, err
 	}
-	columns := map[string]string{}
-	cols, err := flags.GetStringSlice("columns")
+	columns, err := getColumnsFlag(flags, "columns")
 	if err != nil {
 		return nil, err
-	}
-	for _, col := range cols {
-		keyDataType := strings.Split(col, ":")
-		l := len(keyDataType)
-		switch {
-		case l < 2:
-			return nil, fmt.Errorf("incorrect columns format: %s", strings.Join(cols, ","))
-		case l == 2:
-			columns[keyDataType[0]] = keyDataType[1]
-		case l > 2:
-			columns[strings.Join(keyDataType[0:l-1], ":")] = keyDataType[l-1]
-		}
 	}
 
 	return &json2ParquetFlags{

@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/hbbtekademy/parquet-converter/pkg/param"
 	"github.com/spf13/cobra"
 )
 
@@ -90,21 +91,21 @@ func TestGetJsonReadFlags(t *testing.T) {
 		{
 			name: "TC2",
 			setFlags: func(cmd *cobra.Command) {
-				cmd.LocalFlags().Set("disable-autodetect", "true")
-				cmd.LocalFlags().Set("compression", "gzip")
-				cmd.LocalFlags().Set("format", "unstructured")
-				cmd.LocalFlags().Set("dateformat", "%d")
-				cmd.LocalFlags().Set("timestampformat", "%d")
-				cmd.LocalFlags().Set("max-depth", "10")
-				cmd.LocalFlags().Set("records", "true")
-				cmd.LocalFlags().Set("max-obj-size", "1024")
-				cmd.LocalFlags().Set("sample-size", "10")
-				cmd.LocalFlags().Set("convert-str-to-int", "true")
-				cmd.LocalFlags().Set("filename", "true")
-				cmd.LocalFlags().Set("hive-partitioning", "true")
-				cmd.LocalFlags().Set("ignore-errors", "true")
-				cmd.LocalFlags().Set("union-by-name", "true")
-				cmd.LocalFlags().Set("columns", "key1:INTEGER,key:2:VARCHAR")
+				cmd.Flags().Set("disable-autodetect", "true")
+				cmd.Flags().Set("compression", "gzip")
+				cmd.Flags().Set("format", "unstructured")
+				cmd.Flags().Set("dateformat", "%d")
+				cmd.Flags().Set("timestampformat", "%d")
+				cmd.Flags().Set("max-depth", "10")
+				cmd.Flags().Set("records", "true")
+				cmd.Flags().Set("max-obj-size", "1024")
+				cmd.Flags().Set("sample-size", "10")
+				cmd.Flags().Set("convert-str-to-int", "true")
+				cmd.Flags().Set("filename", "true")
+				cmd.Flags().Set("hive-partitioning", "true")
+				cmd.Flags().Set("ignore-errors", "true")
+				cmd.Flags().Set("union-by-name", "true")
+				cmd.Flags().Set("columns", "key1:INTEGER,key:2:VARCHAR")
 			},
 			expectedFlags: &json2ParquetFlags{
 				disableAutodetect: true,
@@ -141,9 +142,137 @@ func TestGetJsonReadFlags(t *testing.T) {
 				t.Fatalf("failed getting json read flags. error: %v", err)
 			}
 			if !reflect.DeepEqual(actual, tc.expectedFlags) {
-				t.Fatalf("expected: %v but got: %v", tc.expectedFlags, actual)
+				t.Fatalf("expected:\n%#v\nbut got:\n%#v", tc.expectedFlags, actual)
 			}
 		})
 	}
 
+}
+
+func TestGetCsvReadFlags(t *testing.T) {
+	tests := []struct {
+		name          string
+		setFlags      func(cmd *cobra.Command)
+		expectedFlags *csv2ParquetFlags
+	}{
+		{
+			name:     "TC1",
+			setFlags: func(cmd *cobra.Command) {},
+			expectedFlags: &csv2ParquetFlags{
+				allVarchar:         false,
+				disableQuotedNulls: false,
+				disableAutodetect:  false,
+				autoTypeCandidates: []string{},
+				columns:            param.Columns{},
+				compression:        "auto",
+				dateformat:         "",
+				decimalSeparator:   ".",
+				delim:              ",",
+				escape:             `"`,
+				filename:           false,
+				forceNotNull:       []string{},
+				header:             false,
+				hivePartitioning:   false,
+				ignoreErrors:       false,
+				maxLineSize:        2097152,
+				names:              []string{},
+				newLine:            "",
+				normalizeNames:     false,
+				nullPadding:        false,
+				nullStr:            []string{},
+				parallel:           false,
+				quote:              `"`,
+				sampleSize:         20480,
+				skip:               0,
+				timestampformat:    "",
+				types:              param.Columns{},
+				unionByName:        false,
+			},
+		},
+		{
+			name: "TC2",
+			setFlags: func(cmd *cobra.Command) {
+				cmd.Flags().Set("delim", "|")
+				cmd.Flags().Set("quote", "'")
+				cmd.Flags().Set("new-line", "\\n")
+				cmd.Flags().Set("decimal-sep", ",")
+				cmd.Flags().Set("escape", "'")
+				cmd.Flags().Set("dateformat", "%d")
+				cmd.Flags().Set("timestampformat", "%d")
+				cmd.Flags().Set("compression", "gzip")
+				cmd.Flags().Set("max-line-size", "100")
+				cmd.Flags().Set("sample-size", "50")
+				cmd.Flags().Set("skip", "10")
+				cmd.Flags().Set("force-not-null", "col1,col2")
+				cmd.Flags().Set("auto-type-candidates", "BIGINT,VARCHAR")
+				cmd.Flags().Set("columns", "col1:BIGINT,col2:VARCHAR")
+				cmd.Flags().Set("names", "col3,col4")
+				cmd.Flags().Set("nullstr", "nul")
+				cmd.Flags().Set("types", "col3:VARCHAR")
+				cmd.Flags().Set("disable-autodetect", "true")
+				cmd.Flags().Set("all-varchar", "true")
+				cmd.Flags().Set("disable-quoted-nulls", "true")
+				cmd.Flags().Set("normalize-names", "true")
+				cmd.Flags().Set("filename", "true")
+				cmd.Flags().Set("header", "true")
+				cmd.Flags().Set("hive-partitioning", "true")
+				cmd.Flags().Set("ignore-errors", "true")
+				cmd.Flags().Set("null-padding", "true")
+				cmd.Flags().Set("parallel", "true")
+				cmd.Flags().Set("union-by-name", "true")
+			},
+			expectedFlags: &csv2ParquetFlags{
+				allVarchar:         true,
+				disableQuotedNulls: true,
+				disableAutodetect:  true,
+				autoTypeCandidates: []string{"BIGINT", "VARCHAR"},
+				columns: param.Columns{
+					"col1": "BIGINT",
+					"col2": "VARCHAR",
+				},
+				compression:      "gzip",
+				dateformat:       "%d",
+				decimalSeparator: ",",
+				delim:            "|",
+				escape:           "'",
+				filename:         true,
+				forceNotNull:     []string{"col1", "col2"},
+				header:           true,
+				hivePartitioning: true,
+				ignoreErrors:     true,
+				maxLineSize:      100,
+				names:            []string{"col3", "col4"},
+				newLine:          "\\n",
+				normalizeNames:   true,
+				nullPadding:      true,
+				nullStr:          []string{"nul"},
+				parallel:         true,
+				quote:            "'",
+				sampleSize:       50,
+				skip:             10,
+				timestampformat:  "%d",
+				types: param.Columns{
+					"col3": "VARCHAR",
+				},
+				unionByName: true,
+			},
+		},
+	}
+
+	mockCmd := &cobra.Command{}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			mockCmd.ResetFlags()
+			registerCsv2ParquetFlags(mockCmd)
+
+			tc.setFlags(mockCmd)
+			actual, err := getCsvReadFlags(mockCmd.LocalFlags())
+			if err != nil {
+				t.Fatalf("failed getting csv read flags. error: %v", err)
+			}
+			if !reflect.DeepEqual(actual, tc.expectedFlags) {
+				t.Fatalf("expected:\n%#v\nbut got:\n%#v", tc.expectedFlags, actual)
+			}
+		})
+	}
 }
