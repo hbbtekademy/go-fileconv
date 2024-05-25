@@ -2,9 +2,7 @@
 
 Convert CSV and JSON files to Apache Parquet format. Powered by DuckDB!
 
-## Standing on the shoulders of Giants
-
-This utility depends on the following notable projects
+## This utility depends on the following notable projects
 
 - DuckDB: https://duckdb.org
 - go-duckdb Client: https://github.com/marcboeker/go-duckdb
