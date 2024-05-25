@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
+	"github.com/hbbtekademy/parquet-converter/pkg/param"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -126,4 +128,26 @@ func deleteDBFile(dbFile string) {
 	if err != nil {
 		fmt.Println(err)
 	}
+}
+
+func getColumnsFlag(flags *pflag.FlagSet, name string) (param.Columns, error) {
+	cols, err := flags.GetStringSlice(name)
+	if err != nil {
+		return nil, err
+	}
+
+	columns := param.Columns{}
+	for _, col := range cols {
+		keyDataType := strings.Split(col, ":")
+		l := len(keyDataType)
+		switch {
+		case l < 2:
+			return nil, fmt.Errorf("incorrect columns format: %s", strings.Join(cols, ","))
+		case l == 2:
+			columns[keyDataType[0]] = keyDataType[1]
+		case l > 2:
+			columns[strings.Join(keyDataType[0:l-1], ":")] = keyDataType[l-1]
+		}
+	}
+	return columns, nil
 }

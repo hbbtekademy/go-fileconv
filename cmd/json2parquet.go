@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/hbbtekademy/parquet-converter/pkg/param"
 	"github.com/hbbtekademy/parquet-converter/pkg/param/jsonparam"
@@ -34,7 +33,7 @@ type json2ParquetFlags struct {
 
 var json2parquetCmd = &cobra.Command{
 	Use:   "json2parquet",
-	Short: "convert json files to apache parquet files",
+	Short: "convert json files to apache parquet files (https://duckdb.org/docs/data/json/overview#parameters)",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := runJson2ParquetCmd(cmd)
@@ -61,7 +60,7 @@ func runJson2ParquetCmd(cmd *cobra.Command) error {
 		return fmt.Errorf("error: %w. failed getting dest flag", err)
 	}
 
-	pqWriteFlags, err := getPqWriteFlags(cmd.Parent().PersistentFlags())
+	pqWriteFlags, err := getPqWriteFlags(cmd.Root().PersistentFlags())
 	if err != nil {
 		return fmt.Errorf("error: %w. failed getting parquet write flags", err)
 	}
@@ -135,7 +134,7 @@ func registerJson2ParquetFlags(json2parquetCmd *cobra.Command) {
 	json2parquetCmd.Flags().Bool("filename", false, "(Optional) Whether or not an extra filename column should be included in the result.")
 	json2parquetCmd.Flags().Bool("hive-partitioning", false, "(Optional) Whether or not to interpret the path as a Hive partitioned path.")
 	json2parquetCmd.Flags().Bool("ignore-errors", false, "(Optional) Whether to ignore parse errors (only possible when format is 'newline_delimited').")
-	json2parquetCmd.Flags().Bool("union-by-name", false, "(Optional) Whether the schema’s of multiple JSON files should be unified.")
+	json2parquetCmd.Flags().Bool("union-by-name", false, "(Optional) Whether the schema's of multiple JSON files should be unified.")
 }
 
 func getJsonReadFlags(flags *pflag.FlagSet) (*json2ParquetFlags, error) {
@@ -195,22 +194,9 @@ func getJsonReadFlags(flags *pflag.FlagSet) (*json2ParquetFlags, error) {
 	if err != nil {
 		return nil, err
 	}
-	columns := map[string]string{}
-	cols, err := flags.GetStringSlice("columns")
+	columns, err := getColumnsFlag(flags, "columns")
 	if err != nil {
 		return nil, err
-	}
-	for _, col := range cols {
-		keyDataType := strings.Split(col, ":")
-		l := len(keyDataType)
-		switch {
-		case l < 2:
-			return nil, fmt.Errorf("incorrect columns format: %s", strings.Join(cols, ","))
-		case l == 2:
-			columns[keyDataType[0]] = keyDataType[1]
-		case l > 2:
-			columns[strings.Join(keyDataType[0:l-1], ":")] = keyDataType[l-1]
-		}
 	}
 
 	return &json2ParquetFlags{
