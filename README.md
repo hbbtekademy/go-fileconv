@@ -109,6 +109,32 @@ Flags:
 ```
 go get github.com/hbbtekademy/parquet-converter
 ```
+#### Json2Parquet
+```go
+client, err := pqconv.New(context.Background(), "file.db")
+if err != nil {
+  return fmt.Errorf("error: %w. failed getting duckdb client", err)
+}
+
+err = client.Json2Parquet(context.Background(), "path/to/source.json", "path/to/dest.parquet",
+  pqparam.NewWriteParams(
+    pqparam.WithCompression(pqparam.Zstd),
+    pqparam.WithPerThreadOutput(false),
+    pqparam.WithHivePartitionConfig(
+      pqparam.WithFilenamePattern("file_{uuid}"),
+      pqparam.WithOverwriteOrIgnore(true),
+      pqparam.WithPartitionBy("col1", "col2"),
+    ),
+  ),
+  jsonparam.WithConvStr2Int(false),
+  jsonparam.WithFormat(jsonparam.NewlineDelimited),
+  jsonparam.WithMaxDepth(jsonFlags.maxDepth),
+)
+if err != nil {
+  return fmt.Errorf("error: %w. failed converting json to parquet", err)
+}
+
+```
 
 ## This utility depends on the following notable projects
 
