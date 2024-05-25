@@ -10,7 +10,7 @@ import (
 	"github.com/hbbtekademy/parquet-converter/pkg/param/pqparam"
 )
 
-// Convert json file/files to parquet file/files
+// Convert json files to parquet files
 func (c *pqconv) Json2Parquet(ctx context.Context, srcJson string, dest string, pqWriteParams *pqparam.WriteParams, jsonParams ...jsonparam.ReadParam) error {
 	jsonReadParams := jsonparam.NewReadParams(jsonParams...)
 
