@@ -133,7 +133,34 @@ err = client.Json2Parquet(context.Background(), "path/to/source.json", "path/to/
 if err != nil {
   return fmt.Errorf("error: %w. failed converting json to parquet", err)
 }
+```
 
+#### Csv2Parquet
+```go
+client, err := pqconv.New(context.Background(), "file.db")
+if err != nil {
+  return fmt.Errorf("error: %w. failed getting duckdb client", err)
+}
+
+err = client.Csv2Parquet(context.Background(), "path/to/source.csv", "path/to/dest.parquet",
+  pqparam.NewWriteParams(
+    pqparam.WithCompression(pqparam.Zstd),
+    pqparam.WithPerThreadOutput(false),
+    pqparam.WithHivePartitionConfig(
+      pqparam.WithFilenamePattern("file_{uuid}"),
+      pqparam.WithOverwriteOrIgnore(true),
+      pqparam.WithPartitionBy("col1", "col2"),
+    ),
+  ),
+  csvparam.WithAllVarchar(true),
+  csvparam.WithAllowQuotedNulls(false),
+  csvparam.WithAutoTypeCandidates([]string{"BIGINT", "DOUBLE"}),
+  csvparam.WithDelim("|"),
+  csvparam.WithHeader(true),
+)
+if err != nil {
+  return fmt.Errorf("error: %w. failed converting csv to parquet", err)
+}
 ```
 
 ## This utility depends on the following notable projects
