@@ -19,7 +19,6 @@ type DuckDBConfig string
 
 // Returns an instance of parquet converter
 func New(ctx context.Context, dbFile string, duckdbConfigs ...DuckDBConfig) (*pqconv, error) {
-	// TODO: Handle duckdb options.
 	dbConn, err := duckdb.NewConnector(dbFile, func(execer driver.ExecerContext) error {
 		bootQueries := []string{
 			"INSTALL 'icu'",
