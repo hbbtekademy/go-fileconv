@@ -39,7 +39,10 @@ func TestReadParams(t *testing.T) {
 		{
 			name: "TC3",
 			params: []ReadParam{
-				WithColumns(map[string]string{"key1": "INT", "key2": "VARCHAR"}),
+				WithColumns(param.Columns{
+					{Name: "key1", Type: "INT"},
+					{Name: "key2", Type: "VARCHAR"},
+				}),
 			},
 			expectedOutput: ",columns = {key1: 'INT',key2: 'VARCHAR'}",
 		},

@@ -18,7 +18,7 @@ type csv2ParquetFlags struct {
 	disableQuotedNulls bool
 	disableAutodetect  bool
 	autoTypeCandidates []string
-	columns            csvparam.Columns
+	columns            param.Columns
 	compression        string
 	dateformat         string
 	decimalSeparator   string
@@ -40,7 +40,7 @@ type csv2ParquetFlags struct {
 	sampleSize         int64
 	skip               int64
 	timestampformat    string
-	types              csvparam.Columns
+	types              param.Columns
 	unionByName        bool
 }
 
@@ -273,7 +273,7 @@ func getCsvReadFlags(flags *pflag.FlagSet) (*csv2ParquetFlags, error) {
 	if err != nil {
 		return nil, err
 	}
-	columns, err := getCsvColumnsFlag(flags, "columns")
+	columns, err := getColumnsFlag(flags, "columns")
 	if err != nil {
 		return nil, err
 	}
@@ -293,7 +293,7 @@ func getCsvReadFlags(flags *pflag.FlagSet) (*csv2ParquetFlags, error) {
 	if err != nil {
 		return nil, err
 	}
-	types, err := getCsvColumnsFlag(flags, "types")
+	types, err := getColumnsFlag(flags, "types")
 	if err != nil {
 		return nil, err
 	}

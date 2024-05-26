@@ -248,7 +248,7 @@ func WithUnionByName(unionByName bool) ReadParam {
 func NewReadParams(params ...ReadParam) *ReadParams {
 	jsonParams := &ReadParams{
 		autodetect:       dfltAutodetect,
-		columns:          make(map[string]string),
+		columns:          param.Columns{},
 		compression:      dfltCompression,
 		convStr2Int:      dfltConvStr2Int,
 		dateformat:       dfltDateFormat,
@@ -332,7 +332,7 @@ func (p *ReadParams) Params() string {
 	}
 
 	if len(p.columns) > 0 {
-		params = append(params, fmt.Sprintf("columns = %s", p.columns.Str(false)))
+		params = append(params, fmt.Sprintf("columns = %s", p.columns.Format(false)))
 	}
 
 	prefix := ""

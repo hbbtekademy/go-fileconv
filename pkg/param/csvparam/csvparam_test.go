@@ -49,14 +49,14 @@ func TestReadParams(t *testing.T) {
 			name: "TC3",
 			params: []ReadParam{
 				WithAutoTypeCandidates([]string{"col1", "col2"}),
-				WithColumns(Columns{
+				WithColumns(param.Columns{
 					{Name: "col1", Type: "BIGINT"},
 					{Name: "col2", Type: "VARCHAR"},
 				}),
 				WithForceNotNull([]string{"col1"}),
 				WithNames([]string{"col1"}),
 				WithNullStrings([]string{"nul"}),
-				WithTypes(Columns{
+				WithTypes(param.Columns{
 					{Name: "col1", Type: "VARCHAR"},
 				}),
 			},

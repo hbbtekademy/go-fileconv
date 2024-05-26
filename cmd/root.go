@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/hbbtekademy/parquet-converter/pkg/param"
-	"github.com/hbbtekademy/parquet-converter/pkg/param/csvparam"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -152,31 +151,9 @@ func getColumnsFlag(flags *pflag.FlagSet, name string) (param.Columns, error) {
 		case l < 2:
 			return nil, fmt.Errorf("incorrect columns format: %s", strings.Join(cols, ","))
 		case l == 2:
-			columns[keyDataType[0]] = keyDataType[1]
+			columns = append(columns, param.Column{Name: keyDataType[0], Type: keyDataType[1]})
 		case l > 2:
-			columns[strings.Join(keyDataType[0:l-1], ":")] = keyDataType[l-1]
-		}
-	}
-	return columns, nil
-}
-
-func getCsvColumnsFlag(flags *pflag.FlagSet, name string) (csvparam.Columns, error) {
-	cols, err := flags.GetStringSlice(name)
-	if err != nil {
-		return nil, err
-	}
-
-	columns := csvparam.Columns{}
-	for _, col := range cols {
-		keyDataType := strings.Split(col, ":")
-		l := len(keyDataType)
-		switch {
-		case l < 2:
-			return nil, fmt.Errorf("incorrect columns format: %s", strings.Join(cols, ","))
-		case l == 2:
-			columns = append(columns, csvparam.Column{Name: keyDataType[0], Type: keyDataType[1]})
-		case l > 2:
-			columns = append(columns, csvparam.Column{Name: strings.Join(keyDataType[0:l-1], ":"), Type: keyDataType[l-1]})
+			columns = append(columns, param.Column{Name: strings.Join(keyDataType[0:l-1], ":"), Type: keyDataType[l-1]})
 		}
 	}
 

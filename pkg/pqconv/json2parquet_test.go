@@ -7,6 +7,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/hbbtekademy/parquet-converter/pkg/param"
+	"github.com/hbbtekademy/parquet-converter/pkg/param/jsonparam"
 	"github.com/hbbtekademy/parquet-converter/pkg/param/pqparam"
 )
 
@@ -15,6 +17,7 @@ func TestJson2Parquet(t *testing.T) {
 		name                          string
 		setup                         func() error
 		pqParams                      []pqparam.WriteParam
+		jsonReadParams                []jsonparam.ReadParam
 		duckdbConfigs                 []DuckDBConfig
 		inputJson                     string
 		outputParquet                 string
@@ -26,6 +29,15 @@ func TestJson2Parquet(t *testing.T) {
 			pqParams: []pqparam.WriteParam{
 				pqparam.WithCompression(pqparam.Zstd),
 				pqparam.WithRowGroupSize(50),
+			},
+			jsonReadParams: []jsonparam.ReadParam{
+				jsonparam.WithColumns(param.Columns{
+					{Name: "sepalWidth", Type: "VARCHAR"},
+					{Name: "species", Type: "VARCHAR"},
+					{Name: "sepalLength", Type: "INTEGER"},
+				}),
+				jsonparam.WithConvStr2Int(true),
+				jsonparam.WithFormat(jsonparam.Array),
 			},
 			duckdbConfigs: []DuckDBConfig{
 				"SET threads TO 2",
@@ -79,7 +91,8 @@ func TestJson2Parquet(t *testing.T) {
 				}
 			}
 
-			err = conv.Json2Parquet(context.Background(), tc.inputJson, tc.outputParquet, pqparam.NewWriteParams(tc.pqParams...))
+			err = conv.Json2Parquet(context.Background(), tc.inputJson, tc.outputParquet,
+				pqparam.NewWriteParams(tc.pqParams...), tc.jsonReadParams...)
 			if err != nil {
 				t.Fatalf("failed converting json to parquet. error: %v", err)
 			}
