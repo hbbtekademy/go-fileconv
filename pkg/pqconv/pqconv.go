@@ -33,7 +33,7 @@ func New(ctx context.Context, dbFile string, duckdbConfigs ...DuckDBConfig) (*pq
 		for _, config := range duckdbConfigs {
 			_, err := execer.ExecContext(ctx, string(config), nil)
 			if err != nil {
-				return fmt.Errorf("failed executing duckdb config: %s. error: %w", config, err)
+				return fmt.Errorf("failed setting duckdb config: %s. error: %w", config, err)
 			}
 		}
 
