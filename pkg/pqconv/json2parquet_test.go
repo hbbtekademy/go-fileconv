@@ -4,22 +4,18 @@ package pqconv
 
 import (
 	"context"
-	"fmt"
 	"os"
-	"path"
-	"strings"
 	"testing"
 
 	"github.com/hbbtekademy/parquet-converter/pkg/param/pqparam"
 )
-
-const testdataPath = "../../testdata"
 
 func TestJson2Parquet(t *testing.T) {
 	tests := []struct {
 		name                          string
 		setup                         func() error
 		pqParams                      []pqparam.WriteParam
+		duckdbConfigs                 []DuckDBConfig
 		inputJson                     string
 		outputParquet                 string
 		outputPartitionedParquetRegex string
@@ -30,6 +26,10 @@ func TestJson2Parquet(t *testing.T) {
 			pqParams: []pqparam.WriteParam{
 				pqparam.WithCompression(pqparam.Zstd),
 				pqparam.WithRowGroupSize(50),
+			},
+			duckdbConfigs: []DuckDBConfig{
+				"SET threads TO 2",
+				"SET memory_limit = '128MB'",
 			},
 			inputJson:        "../../testdata/json/iris150.json",
 			outputParquet:    "../../testdata/json/iris150.parquet",
@@ -65,13 +65,13 @@ func TestJson2Parquet(t *testing.T) {
 		},
 	}
 
-	conv, err := New(context.Background(), "")
-	if err != nil {
-		t.Fatalf("failed getting duckdb client. error: %v", err)
-	}
-
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			conv, err := New(context.Background(), "", tc.duckdbConfigs...)
+			if err != nil {
+				t.Fatalf("failed getting duckdb client. error: %v", err)
+			}
+
 			if tc.setup != nil {
 				err := tc.setup()
 				if err != nil {
@@ -91,36 +91,4 @@ func TestJson2Parquet(t *testing.T) {
 			defer deleteOutput(tc.outputParquet)
 		})
 	}
-}
-
-func validateParquetOutput(conv *pqconv, outputParquet, outputPartitionedParquetRegex string, expectedRowCount int) error {
-	parquetFile := outputParquet
-	if outputPartitionedParquetRegex != "" {
-		parquetFile = outputPartitionedParquetRegex
-	}
-
-	rowcount := 0
-	if err := conv.db.QueryRowContext(context.Background(),
-		fmt.Sprintf("select count(1) from '%s'", parquetFile)).Scan(&rowcount); err != nil {
-		return fmt.Errorf("failed validating parquet rowcount. error: %v", err)
-	}
-
-	if rowcount != expectedRowCount {
-		return fmt.Errorf("expected: %d rows but got: %d", expectedRowCount, rowcount)
-	}
-
-	return nil
-}
-
-func deleteOutput(outputPath string) error {
-	outputPath = path.Clean(outputPath)
-	if !strings.HasPrefix(outputPath, testdataPath) {
-		return fmt.Errorf("cannot delete files outside %s", testdataPath)
-	}
-
-	if outputPath == testdataPath {
-		return fmt.Errorf("cannot delete entire testdata directory")
-	}
-
-	return os.RemoveAll(outputPath)
 }

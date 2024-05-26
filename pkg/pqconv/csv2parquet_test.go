@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/hbbtekademy/parquet-converter/pkg/param"
 	"github.com/hbbtekademy/parquet-converter/pkg/param/csvparam"
 	"github.com/hbbtekademy/parquet-converter/pkg/param/pqparam"
 )
@@ -15,6 +14,7 @@ func TestCsv2Parquet(t *testing.T) {
 		setup                         func() error
 		pqParams                      []pqparam.WriteParam
 		csvReadParams                 []csvparam.ReadParam
+		duckdbConfigs                 []DuckDBConfig
 		inputCsv                      string
 		outputParquet                 string
 		outputPartitionedParquetRegex string
@@ -28,13 +28,17 @@ func TestCsv2Parquet(t *testing.T) {
 			},
 			csvReadParams: []csvparam.ReadParam{
 				csvparam.WithHeader(true),
-				csvparam.WithColumns(param.Columns{
-					"sepal_length": "VARCHAR",
-					"sepal_width":  "INTEGER",
-					"petal_length": "INTEGER",
-					"petal_width":  "DOUBLE",
-					"species":      "VARCHAR",
+				csvparam.WithColumns([]csvparam.Column{
+					{Name: "sepal_l", Type: "VARCHAR"},
+					{Name: "sepal_w", Type: "INTEGER"},
+					{Name: "petal_l", Type: "VARCHAR"},
+					{Name: "petal_w", Type: "DOUBLE"},
+					{Name: "species", Type: "VARCHAR"},
 				}),
+			},
+			duckdbConfigs: []DuckDBConfig{
+				"SET threads TO 2",
+				"SET memory_limit = '128MB'",
 			},
 			inputCsv:         "../../testdata/csv/iris150.csv",
 			outputParquet:    "../../testdata/csv/iris150.parquet",
@@ -63,8 +67,8 @@ func TestCsv2Parquet(t *testing.T) {
 			csvReadParams: []csvparam.ReadParam{
 				csvparam.WithHeader(false),
 				csvparam.WithNames([]string{"sepal_length", "sepal_width", "petal_length", "petal_width"}),
-				csvparam.WithTypes(param.Columns{
-					"sepal_length": "VARCHAR",
+				csvparam.WithTypes(csvparam.Columns{
+					{Name: "sepal_length", Type: "VARCHAR"},
 				}),
 			},
 			inputCsv:         "../../testdata/csv/iris5_quotedNumber.csv",
@@ -73,12 +77,12 @@ func TestCsv2Parquet(t *testing.T) {
 		},
 	}
 
-	conv, err := New(context.Background(), "")
-	if err != nil {
-		t.Fatalf("failed getting duckdb client. error: %v", err)
-	}
-
 	for _, tc := range tests {
+		conv, err := New(context.Background(), "", tc.duckdbConfigs...)
+		if err != nil {
+			t.Fatalf("failed getting duckdb client. error: %v", err)
+		}
+
 		t.Run(tc.name, func(t *testing.T) {
 			if tc.setup != nil {
 				err := tc.setup()
