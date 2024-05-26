@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/hbbtekademy/parquet-converter/pkg/param"
 	"github.com/hbbtekademy/parquet-converter/pkg/param/csvparam"
 	"github.com/hbbtekademy/parquet-converter/pkg/param/pqparam"
 )
@@ -28,7 +29,7 @@ func TestCsv2Parquet(t *testing.T) {
 			},
 			csvReadParams: []csvparam.ReadParam{
 				csvparam.WithHeader(true),
-				csvparam.WithColumns([]csvparam.Column{
+				csvparam.WithColumns([]param.Column{
 					{Name: "sepal_l", Type: "VARCHAR"},
 					{Name: "sepal_w", Type: "INTEGER"},
 					{Name: "petal_l", Type: "VARCHAR"},
@@ -67,7 +68,7 @@ func TestCsv2Parquet(t *testing.T) {
 			csvReadParams: []csvparam.ReadParam{
 				csvparam.WithHeader(false),
 				csvparam.WithNames([]string{"sepal_length", "sepal_width", "petal_length", "petal_width"}),
-				csvparam.WithTypes(csvparam.Columns{
+				csvparam.WithTypes(param.Columns{
 					{Name: "sepal_length", Type: "VARCHAR"},
 				}),
 			},

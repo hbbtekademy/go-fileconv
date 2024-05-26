@@ -28,7 +28,7 @@ type json2ParquetFlags struct {
 	sampleSize        uint64
 	timestampformat   string
 	unionByName       bool
-	columns           map[string]string
+	columns           param.Columns
 }
 
 var json2parquetCmd = &cobra.Command{

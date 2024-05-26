@@ -14,19 +14,25 @@ const (
 	AutoCompression Compression = "auto"
 )
 
-type Columns map[string]string
+type Column struct {
+	Name string
+	Type string
+}
 
-func (c Columns) Str(quoteKeys bool) string {
+type Columns []Column
+
+func (c Columns) Format(quoteKeys bool) string {
 	if len(c) == 0 {
 		return ""
 	}
 
 	cols := []string{}
-	for k, v := range c {
+
+	for _, col := range c {
 		if quoteKeys {
-			cols = append(cols, fmt.Sprintf("'%s': '%s'", k, v))
+			cols = append(cols, fmt.Sprintf("'%s': '%s'", col.Name, col.Type))
 		} else {
-			cols = append(cols, fmt.Sprintf("%s: '%s'", k, v))
+			cols = append(cols, fmt.Sprintf("%s: '%s'", col.Name, col.Type))
 		}
 	}
 
