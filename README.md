@@ -172,6 +172,6 @@ if err != nil {
 
 ## This utility depends on the following notable projects
 
-- DuckDB: https://github.com/duckdb/duckdb
-- go-duckdb Client: https://github.com/marcboeker/go-duckdb
-- Cobra: https://github.com/spf13/cobra
+- `DuckDB`: https://github.com/duckdb/duckdb
+- `go-duckdb`: https://github.com/marcboeker/go-duckdb
+- `Cobra`: https://github.com/spf13/cobra
