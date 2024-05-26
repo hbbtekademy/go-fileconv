@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/hbbtekademy/parquet-converter/pkg/param"
+	"github.com/hbbtekademy/parquet-converter/pkg/param/csvparam"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -28,6 +29,8 @@ const (
 	PQ_PER_THREAD_OUTPUT       string = "pq-per-thread-output"
 	PQCONV_CLI_CONFIG_DIR      string = "config-dir"
 	DFLT_PQCONV_CLI_CONFIG_DIR string = "$HOME/.pqconv-cli"
+
+	DUCKDB_CONFIG string = "duckdb-config"
 
 	VERSION = "v1.0.0, duckdb version: v0.10.2"
 )
@@ -64,6 +67,10 @@ func registerGlobalFlags(rootCmd *cobra.Command) {
 	rootCmd.PersistentFlags().String(PQ_FILENAME_PATTERN, "data_{i}.parquet", "(Optional) With this flag a pattern with {i} or {uuid} can be defined to create specific partition filenames.")
 	rootCmd.PersistentFlags().Bool(PQ_PER_THREAD_OUTPUT, false, "(Optional) If the final number of Parquet files is not important, writing one file per thread can significantly improve performance.")
 	rootCmd.PersistentFlags().String(PQCONV_CLI_CONFIG_DIR, DFLT_PQCONV_CLI_CONFIG_DIR, "(Optional) Config Directory for the CLI")
+	rootCmd.PersistentFlags().StringSlice(DUCKDB_CONFIG, []string{}, `(Optional) List of DuckDB configuration parameters. e.g.
+--duckdb-config "SET threads TO 1"
+--duckdb-config "SET memory_limit = '10GB'"
+Refer https://duckdb.org/docs/configuration/overview.html for list of all the configurations`)
 }
 
 func getPqWriteFlags(flags *pflag.FlagSet) (*pqWriteFlags, error) {
@@ -150,5 +157,28 @@ func getColumnsFlag(flags *pflag.FlagSet, name string) (param.Columns, error) {
 			columns[strings.Join(keyDataType[0:l-1], ":")] = keyDataType[l-1]
 		}
 	}
+	return columns, nil
+}
+
+func getCsvColumnsFlag(flags *pflag.FlagSet, name string) (csvparam.Columns, error) {
+	cols, err := flags.GetStringSlice(name)
+	if err != nil {
+		return nil, err
+	}
+
+	columns := csvparam.Columns{}
+	for _, col := range cols {
+		keyDataType := strings.Split(col, ":")
+		l := len(keyDataType)
+		switch {
+		case l < 2:
+			return nil, fmt.Errorf("incorrect columns format: %s", strings.Join(cols, ","))
+		case l == 2:
+			columns = append(columns, csvparam.Column{Name: keyDataType[0], Type: keyDataType[1]})
+		case l > 2:
+			columns = append(columns, csvparam.Column{Name: strings.Join(keyDataType[0:l-1], ":"), Type: keyDataType[l-1]})
+		}
+	}
+
 	return columns, nil
 }

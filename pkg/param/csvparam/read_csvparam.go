@@ -7,13 +7,38 @@ import (
 	"github.com/hbbtekademy/parquet-converter/pkg/param"
 )
 
+type Column struct {
+	Name string
+	Type string
+}
+
+type Columns []Column
+
+func (c Columns) String() string {
+	if len(c) == 0 {
+		return ""
+	}
+
+	cols := []string{}
+
+	for _, col := range c {
+		cols = append(cols, fmt.Sprintf("'%s': '%s'", col.Name, col.Type))
+	}
+
+	var sb strings.Builder
+	sb.WriteString("{")
+	sb.WriteString(strings.Join(cols, ","))
+	sb.WriteString("}")
+	return sb.String()
+}
+
 // Parameters for reading a CSV file
 type ReadParams struct {
 	allVarchar         bool
 	allowQuotedNulls   bool
 	autoDetect         bool
 	autoTypeCandidates []string
-	columns            param.Columns
+	columns            Columns
 	compression        param.Compression
 	dateformat         string
 	decimalSeparator   string
@@ -35,7 +60,7 @@ type ReadParams struct {
 	sampleSize         int64
 	skip               int64
 	timestampformat    string
-	types              param.Columns
+	types              Columns
 	unionByName        bool
 }
 
@@ -90,7 +115,7 @@ func WithAutoTypeCandidates(autoTypeCandidates []string) ReadParam {
 	}
 }
 
-func WithColumns(columns param.Columns) ReadParam {
+func WithColumns(columns Columns) ReadParam {
 	return func(rp *ReadParams) {
 		rp.columns = columns
 	}
@@ -222,7 +247,7 @@ func WithTimestampFormat(timestampformat string) ReadParam {
 	}
 }
 
-func WithTypes(types param.Columns) ReadParam {
+func WithTypes(types Columns) ReadParam {
 	return func(rp *ReadParams) {
 		rp.types = types
 	}
@@ -241,7 +266,7 @@ func NewReadParams(params ...ReadParam) *ReadParams {
 		allowQuotedNulls:   dfltAllowQuotedNulls,
 		autoDetect:         dfltAutoDetect,
 		autoTypeCandidates: []string{},
-		columns:            make(param.Columns),
+		columns:            Columns{},
 		compression:        dfltCompression,
 		dateformat:         dfltDateformat,
 		decimalSeparator:   dfltDecimalSeparator,
@@ -263,7 +288,7 @@ func NewReadParams(params ...ReadParam) *ReadParams {
 		sampleSize:         dfltSampleSize,
 		skip:               dfltSkip,
 		timestampformat:    dfltTimestampformat,
-		types:              make(param.Columns),
+		types:              Columns{},
 		unionByName:        dfltUnionByName,
 	}
 
@@ -291,7 +316,7 @@ func (p *ReadParams) Params() string {
 		params = append(params, fmt.Sprintf("auto_type_candidates = ['%s']", strings.Join(p.autoTypeCandidates, "','")))
 	}
 	if len(p.columns) > 0 {
-		params = append(params, fmt.Sprintf("columns = %s", p.columns.Str(true)))
+		params = append(params, fmt.Sprintf("columns = %s", p.columns))
 	}
 	if p.compression != dfltCompression {
 		params = append(params, fmt.Sprintf("compression = '%s'", p.compression))
@@ -357,7 +382,7 @@ func (p *ReadParams) Params() string {
 		params = append(params, fmt.Sprintf("timestampformat = '%s'", p.timestampformat))
 	}
 	if len(p.types) > 0 {
-		params = append(params, fmt.Sprintf("types = %s", p.types.Str(true)))
+		params = append(params, fmt.Sprintf("types = %s", p.types))
 	}
 	if p.unionByName {
 		params = append(params, "union_by_name = true")

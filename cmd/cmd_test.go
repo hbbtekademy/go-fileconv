@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hbbtekademy/parquet-converter/pkg/param"
+	"github.com/hbbtekademy/parquet-converter/pkg/param/csvparam"
 	"github.com/spf13/cobra"
 )
 
@@ -163,7 +163,7 @@ func TestGetCsvReadFlags(t *testing.T) {
 				disableQuotedNulls: false,
 				disableAutodetect:  false,
 				autoTypeCandidates: []string{},
-				columns:            param.Columns{},
+				columns:            csvparam.Columns{},
 				compression:        "auto",
 				dateformat:         "",
 				decimalSeparator:   ".",
@@ -185,7 +185,7 @@ func TestGetCsvReadFlags(t *testing.T) {
 				sampleSize:         20480,
 				skip:               0,
 				timestampformat:    "",
-				types:              param.Columns{},
+				types:              csvparam.Columns{},
 				unionByName:        false,
 			},
 		},
@@ -226,9 +226,9 @@ func TestGetCsvReadFlags(t *testing.T) {
 				disableQuotedNulls: true,
 				disableAutodetect:  true,
 				autoTypeCandidates: []string{"BIGINT", "VARCHAR"},
-				columns: param.Columns{
-					"col1": "BIGINT",
-					"col2": "VARCHAR",
+				columns: []csvparam.Column{
+					{Name: "col1", Type: "BIGINT"},
+					{Name: "col2", Type: "VARCHAR"},
 				},
 				compression:      "gzip",
 				dateformat:       "%d",
@@ -251,8 +251,8 @@ func TestGetCsvReadFlags(t *testing.T) {
 				sampleSize:       50,
 				skip:             10,
 				timestampformat:  "%d",
-				types: param.Columns{
-					"col3": "VARCHAR",
+				types: csvparam.Columns{
+					{Name: "col3", Type: "VARCHAR"},
 				},
 				unionByName: true,
 			},
