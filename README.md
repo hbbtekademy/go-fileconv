@@ -114,9 +114,11 @@ Flags:
 ```
 go get github.com/hbbtekademy/parquet-converter
 ```
+`go-duckdb` uses `CGO` to make calls to DuckDB. You must build your binaries with `CGO_ENABLED=1`.
+
 #### Json2Parquet
 ```go
-client, err := pqconv.New(context.Background(), "file.db")
+client, err := pqconv.New(context.Background(), "file.db", "SET threads TO 1", "SET memory_limit = '1GB'")
 if err != nil {
   return fmt.Errorf("error: %w. failed getting duckdb client", err)
 }
