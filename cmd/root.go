@@ -37,8 +37,7 @@ const (
 var rootCmd = &cobra.Command{
 	Use:   "pqconv-cli",
 	Short: "convert CSV and JSON files Apache Parquet format",
-	Long: `Harness the power of DuckDB to easily convert CSV and JSON files to Apache Parquet format.
-https://duckdb.org/`,
+	Long: `Convert CSV and JSON files to Apache Parquet format.`,
 	Version: VERSION,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		return createConfigDir(cmd)
