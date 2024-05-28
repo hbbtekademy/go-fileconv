@@ -1,8 +1,10 @@
-# parquet-converter
+# CSV & JSON to Apache Parquet Converter
 
-Convert CSV and JSON files to Apache Parquet format. Powered by DuckDB!
+Convert CSV and JSON files to Apache Parquet format. Powered by [DuckDB](https://github.com/duckdb/duckdb)!
 
 ## Usage
+- [CLI](#cli)
+- [Go Module](#go-module)
 ### CLI
 ```
 ./pqconv-cli -h
