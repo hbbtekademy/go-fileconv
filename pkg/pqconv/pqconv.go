@@ -25,8 +25,6 @@ func New(ctx context.Context, dbFile string, duckdbConfigs ...DuckDBConfig) (*pq
 			"LOAD 'icu'",
 			"INSTALL 'json'",
 			"LOAD 'json'",
-			"INSTALL 'parquet'",
-			"LOAD 'parquet'",
 		}
 
 		for _, config := range duckdbConfigs {

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -132,7 +133,7 @@ func deleteDBFile(dbFile string) {
 		fmt.Println(err)
 	}
 	err = os.Remove(dbFile + ".wal")
-	if err != nil {
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
 		fmt.Println(err)
 	}
 }
