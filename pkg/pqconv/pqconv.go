@@ -59,3 +59,21 @@ func New(ctx context.Context, dbFile string, duckdbConfigs ...DuckDBConfig) (*pq
 		db: db,
 	}, nil
 }
+
+func GetDuckDBVersion() (string, error) {
+	dbConn, err := duckdb.NewConnector("", func(execer driver.ExecerContext) error {
+		return nil
+	})
+	if err != nil {
+		return "", fmt.Errorf("failed getting duckdb connector. error: %w", err)
+	}
+
+	db := sql.OpenDB(dbConn)
+
+	var ver string
+	if err := db.QueryRowContext(context.Background(), "select version()").Scan(&ver); err != nil {
+		return "", fmt.Errorf("failed getting duckdb version. error: %w", err)
+	}
+
+	return ver, nil
+}

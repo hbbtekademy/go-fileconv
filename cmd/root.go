@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/hbbtekademy/parquet-converter/pkg/param"
+	"github.com/hbbtekademy/parquet-converter/pkg/pqconv"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -30,15 +31,15 @@ const (
 	DFLT_PQCONV_CLI_CONFIG_DIR string = "$HOME/.pqconv-cli"
 
 	DUCKDB_CONFIG string = "duckdb-config"
-
-	VERSION = "v1.0.0, duckdb version: v0.10.2"
 )
 
+var Version = "development"
+
 var rootCmd = &cobra.Command{
-	Use:   "pqconv-cli",
-	Short: "convert CSV and JSON files Apache Parquet format",
-	Long: `Convert CSV and JSON files to Apache Parquet format.`,
-	Version: VERSION,
+	Use:     "pqconv-cli",
+	Short:   "convert CSV and JSON files Apache Parquet format",
+	Long:    `Convert CSV and JSON files to Apache Parquet format.`,
+	Version: getVersion(),
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		return createConfigDir(cmd)
 	},
@@ -157,4 +158,12 @@ func getColumnsFlag(flags *pflag.FlagSet, name string) (param.Columns, error) {
 	}
 
 	return columns, nil
+}
+
+func getVersion() string {
+	duckdbVer, err := pqconv.GetDuckDBVersion()
+	if err != nil {
+		duckdbVer = err.Error()
+	}
+	return fmt.Sprintf("%s, duckdb version: %s", Version, duckdbVer)
 }
