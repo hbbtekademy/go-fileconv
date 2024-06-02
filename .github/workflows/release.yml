@@ -34,5 +34,5 @@ jobs:
           fail_on_unmatched_files: true
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            LICENSE
+            LICENSE.txt
             pqconv-cli-${{ github.ref_name }}-linux_amd64
