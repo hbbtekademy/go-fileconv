@@ -9,7 +9,10 @@ env:
   VERSION: ${{ github.ref_name }}
 
 jobs:
-  build:
+  release:
+    permissions:
+      contents: write # For creating the GitHub release.
+      
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,6 +32,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           fail_on_unmatched_files: true
+          token: ${{ secrets.GITHUB_TOKEN }}
           files: |
             LICENSE
             pqconv-cli-${{ github.ref_name }}-linux_amd64
