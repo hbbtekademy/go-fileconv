@@ -1,0 +1,34 @@
+name: pqconv-cli-release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+env:
+  VERSION: ${{ github.ref_name }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.21"
+
+      - name: Test
+        run: go test -v ./...
+
+      - name: Build
+        run: go build -o pqconv-cli-${VERSION}-linux_amd64 -ldflags="-X github.com/hbbtekademy/parquet-converter/cmd.Version=${VERSION}" main.go
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          fail_on_unmatched_files: true
+          files: |
+            LICENSE
+            pqconv-cli-${{ github.ref_name }}-linux_amd64
