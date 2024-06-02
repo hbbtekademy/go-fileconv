@@ -26,7 +26,7 @@ jobs:
         run: go test -v ./...
 
       - name: Build
-        run: go build -o pqconv-cli-${VERSION}-linux_amd64 -ldflags="-X github.com/hbbtekademy/parquet-converter/cmd.Version=${VERSION}" main.go
+        run: go build -o pqconv-cli-${VERSION}-linux_amd64 -ldflags="-s -w -X github.com/hbbtekademy/parquet-converter/cmd.Version=${VERSION}" main.go
 
       - name: Release
         uses: softprops/action-gh-release@v2
