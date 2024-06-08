@@ -190,7 +190,7 @@ This utility will install and load the following DuckDB extensions
 - json
 
 The extensions will be downloaded in the default dir `$HOME/.duckdb/extensions/<duckdb_version>/<platform>/<extension_name>` \
-e.g. `/home/hbb/.duckdb/extensions/v0.10.3/linux_amd64/icu.duckdb_extension`
+e.g. `/home/hbb/.duckdb/extensions/v1.0.0/linux_amd64/icu.duckdb_extension`
 
 #### Manually Downloading The Extensions
 
@@ -199,8 +199,8 @@ Extensions can be manually downloaded from `http://extensions.duckdb.org`
 ##### Linux/AMD:
 
 ```shell
-curl -LO  https://extensions.duckdb.org/v0.10.3/linux_amd/icu.duckdb_extension.gz
-curl -LO  https://extensions.duckdb.org/v0.10.3/linux_amd/json.duckdb_extension.gz
+curl -LO  https://extensions.duckdb.org/v1.0.0/linux_amd/icu.duckdb_extension.gz
+curl -LO  https://extensions.duckdb.org/v1.0.0/linux_amd/json.duckdb_extension.gz
 ```
 
 ## This utility depends on the following projects
