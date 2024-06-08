@@ -1,13 +1,13 @@
 //go:build !windows
 
-package pqconv
+package fileconv
 
 import (
 	"context"
 	"fmt"
 
-	"github.com/hbbtekademy/parquet-converter/pkg/param/jsonparam"
-	"github.com/hbbtekademy/parquet-converter/pkg/param/pqparam"
+	"github.com/hbbtekademy/go-fileconv/pkg/param/jsonparam"
+	"github.com/hbbtekademy/go-fileconv/pkg/param/pqparam"
 )
 
 // Convert json files to parquet files

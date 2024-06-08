@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/hbbtekademy/parquet-converter/pkg/param"
+	"github.com/hbbtekademy/go-fileconv/pkg/param"
 	"github.com/spf13/cobra"
 )
 

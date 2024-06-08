@@ -1,15 +1,15 @@
 //go:build !windows
 
-package pqconv
+package fileconv
 
 import (
 	"context"
 	"os"
 	"testing"
 
-	"github.com/hbbtekademy/parquet-converter/pkg/param"
-	"github.com/hbbtekademy/parquet-converter/pkg/param/jsonparam"
-	"github.com/hbbtekademy/parquet-converter/pkg/param/pqparam"
+	"github.com/hbbtekademy/go-fileconv/pkg/param"
+	"github.com/hbbtekademy/go-fileconv/pkg/param/jsonparam"
+	"github.com/hbbtekademy/go-fileconv/pkg/param/pqparam"
 )
 
 func TestJson2Parquet(t *testing.T) {

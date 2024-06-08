@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hbbtekademy/parquet-converter/pkg/param"
-	"github.com/hbbtekademy/parquet-converter/pkg/param/jsonparam"
-	"github.com/hbbtekademy/parquet-converter/pkg/param/pqparam"
-	"github.com/hbbtekademy/parquet-converter/pkg/pqconv"
+	"github.com/hbbtekademy/go-fileconv/pkg/fileconv"
+	"github.com/hbbtekademy/go-fileconv/pkg/param"
+	"github.com/hbbtekademy/go-fileconv/pkg/param/jsonparam"
+	"github.com/hbbtekademy/go-fileconv/pkg/param/pqparam"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -33,7 +33,7 @@ type json2ParquetFlags struct {
 
 var json2parquetCmd = &cobra.Command{
 	Use:   "json2parquet",
-	Short: "convert json files to apache parquet files (https://duckdb.org/docs/data/json/overview#parameters)",
+	Short: "Convert JSON files to Apache Parquet files (https://duckdb.org/docs/data/json/overview#parameters)",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := runJson2ParquetCmd(cmd)
@@ -72,7 +72,7 @@ func runJson2ParquetCmd(cmd *cobra.Command) error {
 
 	dbFile := getDBFile(cmd)
 	defer deleteDBFile(dbFile)
-	client, err := pqconv.New(context.Background(), dbFile)
+	client, err := fileconv.New(context.Background(), dbFile)
 	if err != nil {
 		return fmt.Errorf("error: %w. failed getting duckdb client", err)
 	}

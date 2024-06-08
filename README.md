@@ -1,6 +1,6 @@
-# CSV & JSON to Apache Parquet Converter
+# Convert Files Between Different Formats
 
-Convert CSV and JSON files to Apache Parquet format. Powered by [DuckDB](https://github.com/duckdb/duckdb)
+`go-fileconv` is a Command Line Utility and Go Library for converting files between different formats like JSON, CSV, Apache Parquet etc. Powered by [DuckDB](https://github.com/duckdb/duckdb)
 
 ## Usage
 
@@ -11,15 +11,15 @@ Convert CSV and JSON files to Apache Parquet format. Powered by [DuckDB](https:/
 ### CLI
 
 ```
-./pqconv-cli -h
-Convert CSV and JSON files to Apache Parquet format.
+./fileconv-cli -h
+Convert file between different formats like JSON, CSV and Apache Parquet
 
 Usage:
-  pqconv-cli [command]
+  fileconv-cli [command]
 
 Available Commands:
-  csv2parquet  convert csv files to apache parquet files (https://duckdb.org/docs/data/csv/overview#parameters)
-  json2parquet convert json files to apache parquet files (https://duckdb.org/docs/data/json/overview#parameters)
+  csv2parquet  Convert CSV files to Apache Parquet files (https://duckdb.org/docs/data/csv/overview#parameters)
+  json2parquet Convert JSON files to Apache Parquet files (https://duckdb.org/docs/data/json/overview#parameters)
   help         Help about any command
   completion   Generate the autocompletion script for the specified shell
 
@@ -34,23 +34,23 @@ Flags:
                                      --duckdb-config "SET threads TO 1"
                                      --duckdb-config "SET memory_limit = '10GB'"
                                      Refer https://duckdb.org/docs/configuration/overview.html for list of all the configurations
-  -h, --help                         help for pqconv-cli
-  -v, --version                      version for pqconv-cli
+  -h, --help                         help for fileconv-cli
+  -v, --version                      version for fileconv-cli
 ```
 
 #### json2parquet
 
 ```
-./pqconv-cli json2parquet -h
-convert json files to apache parquet files (https://duckdb.org/docs/data/json/overview#parameters)
+./fileconv-cli json2parquet -h
+Convert JSON files to Apache Parquet files (https://duckdb.org/docs/data/json/overview#parameters)
 
 Usage:
-  pqconv-cli json2parquet [flags]
+  fileconv-cli json2parquet [flags]
 
 Flags:
       --source string            full path of json file or regex for multiple json files.
       --dest string              filename of output parquet file or directory in which to write hive partitioned parquet files.
-
+                                 
       --disable-autodetect       (Optional) Disable automatically detecting the names of the keys and data types of the values.
       --compression string       (Optional) The compression type for the file (auto, gzip, zstd). (default "auto")
       --columns strings          (Optional) A list of key names and value types contained within the JSON file. (e.g., "key1:INTEGER,key2:VARCHAR"). If auto detect is enabled these will be inferred.
@@ -72,16 +72,16 @@ Flags:
 #### csv2parquet
 
 ```
-./pqconv-cli csv2parquet -h
-convert csv files to apache parquet files (https://duckdb.org/docs/data/csv/overview#parameters)
+./fileconv-cli csv2parquet -h
+Convert CSV files to Apache Parquet files (https://duckdb.org/docs/data/csv/overview#parameters)
 
 Usage:
-  pqconv-cli csv2parquet [flags]
+  fileconv-cli csv2parquet [flags]
 
 Flags:
       --source string                  full path of csv file or regex for multiple csv files.
       --dest string                    filename of output parquet file or directory in which to write hive partitioned parquet files.
-
+                                       
       --delim string                   (Optional) Specifies the character that separates columns within each row (line) of the file. (default ",")
       --quote string                   (Optional) Specifies the quoting string to be used when a data value is quoted. (default "\"")
       --new-line string                (Optional) Set the new line character(s) in the file. Options are '\r','\n', or '\r\n'.
@@ -93,10 +93,10 @@ Flags:
       --max-line-size int              (Optional) The maximum line size in bytes. (default 2097152)
       --sample-size int                (Optional) The number of sample rows for auto detection of parameters. (default 20480)
       --skip int                       (Optional) The number of lines at the top of the file to skip.
-      --force-not-null strings         (Optional) Do not match the specified columns’ values against the NULL string.
+      --force-not-null strings         (Optional) Do not match the specified columns’ values against the NULL string. 
                                        In the default case where the NULL string is empty, this means that empty values will be read as zero-length strings rather than NULLs.
-      --auto-type-candidates strings   (Optional) This option allows you to specify the types that the sniffer will use when detecting CSV column types.
-                                       The VARCHAR type is always included in the detected types (as a fallback option).
+      --auto-type-candidates strings   (Optional) This option allows you to specify the types that the sniffer will use when detecting CSV column types. 
+                                       The VARCHAR type is always included in the detected types (as a fallback option). 
                                        Valid values (SQLNULL, BOOLEAN, BIGINT, DOUBLE, TIME, DATE, TIMESTAMP, VARCHAR).
       --columns strings                (Optional) A list that specifies the column names and column types contained within the CSV file (e.g., col1:INTEGER,col2:VARCHAR).
                                        The order of the Name:Type definitions should match the order of columns in the CSV file.
@@ -121,7 +121,7 @@ Flags:
 ### Go Module
 
 ```
-go get github.com/hbbtekademy/parquet-converter
+go get github.com/hbbtekademy/go-fileconv
 ```
 
 `go-duckdb` uses `CGO` to make calls to DuckDB. You must build your binaries with `CGO_ENABLED=1`.
@@ -129,7 +129,7 @@ go get github.com/hbbtekademy/parquet-converter
 #### Json2Parquet
 
 ```go
-client, err := pqconv.New(context.Background(), "file.db", "SET threads TO 1", "SET memory_limit = '1GB'")
+client, err := fileconv.New(context.Background(), "file.db", "SET threads TO 1", "SET memory_limit = '1GB'")
 if err != nil {
   return fmt.Errorf("error: %w. failed getting duckdb client", err)
 }
@@ -156,7 +156,7 @@ if err != nil {
 #### Csv2Parquet
 
 ```go
-client, err := pqconv.New(context.Background(), "file.db")
+client, err := fileconv.New(context.Background(), "file.db")
 if err != nil {
   return fmt.Errorf("error: %w. failed getting duckdb client", err)
 }

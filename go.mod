@@ -1,11 +1,11 @@
-module github.com/hbbtekademy/parquet-converter
+module github.com/hbbtekademy/go-fileconv
 
 go 1.21
 
 toolchain go1.22.3
 
 require (
-	github.com/marcboeker/go-duckdb v1.6.6
+	github.com/marcboeker/go-duckdb v1.7.0
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/pflag v1.0.5
 )
