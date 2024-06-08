@@ -4,9 +4,9 @@ import (
 	"context"
 	"testing"
 
-	"github.com/hbbtekademy/parquet-converter/pkg/param"
-	"github.com/hbbtekademy/parquet-converter/pkg/param/csvparam"
-	"github.com/hbbtekademy/parquet-converter/pkg/param/pqparam"
+	"github.com/hbbtekademy/go-fileconv/pkg/param"
+	"github.com/hbbtekademy/go-fileconv/pkg/param/csvparam"
+	"github.com/hbbtekademy/go-fileconv/pkg/param/pqparam"
 )
 
 func TestCsv2Parquet(t *testing.T) {

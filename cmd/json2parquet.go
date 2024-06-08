@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hbbtekademy/parquet-converter/pkg/param"
-	"github.com/hbbtekademy/parquet-converter/pkg/param/jsonparam"
-	"github.com/hbbtekademy/parquet-converter/pkg/param/pqparam"
-	"github.com/hbbtekademy/parquet-converter/pkg/pqconv"
+	"github.com/hbbtekademy/go-fileconv/pkg/param"
+	"github.com/hbbtekademy/go-fileconv/pkg/param/jsonparam"
+	"github.com/hbbtekademy/go-fileconv/pkg/param/pqparam"
+	"github.com/hbbtekademy/go-fileconv/pkg/pqconv"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )

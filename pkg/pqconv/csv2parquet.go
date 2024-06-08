@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/hbbtekademy/parquet-converter/pkg/param/csvparam"
-	"github.com/hbbtekademy/parquet-converter/pkg/param/pqparam"
+	"github.com/hbbtekademy/go-fileconv/pkg/param/csvparam"
+	"github.com/hbbtekademy/go-fileconv/pkg/param/pqparam"
 )
 
 // Convert csv files to parquet files

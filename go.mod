@@ -1,4 +1,4 @@
-module github.com/hbbtekademy/parquet-converter
+module github.com/hbbtekademy/go-fileconv
 
 go 1.21
 

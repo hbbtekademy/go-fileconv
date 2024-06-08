@@ -3,7 +3,7 @@ name: pqconv-cli-release
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
+      - "v[0-9]+.[0-9]+.[0-9]+"
 
 env:
   VERSION: ${{ github.ref_name }}
@@ -12,7 +12,7 @@ jobs:
   release:
     permissions:
       contents: write # For creating the GitHub release.
-      
+
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,7 +26,7 @@ jobs:
         run: go test -v ./...
 
       - name: Build
-        run: go build -o pqconv-cli-${VERSION}-linux_amd64 -ldflags="-s -w -X github.com/hbbtekademy/parquet-converter/cmd.Version=${VERSION}" main.go
+        run: go build -o fileconv-cli-${VERSION}-linux_amd64 -ldflags="-s -w -X github.com/hbbtekademy/go-fileconv/cmd.Version=${VERSION}" main.go
 
       - name: Release
         uses: softprops/action-gh-release@v2
@@ -35,4 +35,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
             LICENSE.txt
-            pqconv-cli-${{ github.ref_name }}-linux_amd64
+            fileconv-cli-${{ github.ref_name }}-linux_amd64

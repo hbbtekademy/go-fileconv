@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/hbbtekademy/parquet-converter/pkg/param"
+	"github.com/hbbtekademy/go-fileconv/pkg/param"
 )
 
 type Format string

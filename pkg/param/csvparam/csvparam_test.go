@@ -3,7 +3,7 @@ package csvparam
 import (
 	"testing"
 
-	"github.com/hbbtekademy/parquet-converter/pkg/param"
+	"github.com/hbbtekademy/go-fileconv/pkg/param"
 )
 
 func TestReadParams(t *testing.T) {
