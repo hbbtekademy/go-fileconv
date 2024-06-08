@@ -11,7 +11,7 @@
 ### CLI
 
 ```
-./pqconv-cli -h
+./fileconv-cli -h
 Convert CSV and JSON files to Apache Parquet format.
 
 Usage:
@@ -41,7 +41,7 @@ Flags:
 #### json2parquet
 
 ```
-./pqconv-cli json2parquet -h
+./fileconv-cli json2parquet -h
 convert json files to apache parquet files (https://duckdb.org/docs/data/json/overview#parameters)
 
 Usage:
@@ -121,7 +121,7 @@ Flags:
 ### Go Module
 
 ```
-go get github.com/hbbtekademy/parquet-converter
+go get github.com/hbbtekademy/go-fileconv
 ```
 
 `go-duckdb` uses `CGO` to make calls to DuckDB. You must build your binaries with `CGO_ENABLED=1`.
@@ -129,7 +129,7 @@ go get github.com/hbbtekademy/parquet-converter
 #### Json2Parquet
 
 ```go
-client, err := pqconv.New(context.Background(), "file.db", "SET threads TO 1", "SET memory_limit = '1GB'")
+client, err := fileconv.New(context.Background(), "file.db", "SET threads TO 1", "SET memory_limit = '1GB'")
 if err != nil {
   return fmt.Errorf("error: %w. failed getting duckdb client", err)
 }
@@ -156,7 +156,7 @@ if err != nil {
 #### Csv2Parquet
 
 ```go
-client, err := pqconv.New(context.Background(), "file.db")
+client, err := fileconv.New(context.Background(), "file.db")
 if err != nil {
   return fmt.Errorf("error: %w. failed getting duckdb client", err)
 }
