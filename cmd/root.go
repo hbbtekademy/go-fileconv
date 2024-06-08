@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/hbbtekademy/go-fileconv/pkg/fileconv"
 	"github.com/hbbtekademy/go-fileconv/pkg/param"
-	"github.com/hbbtekademy/go-fileconv/pkg/pqconv"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -23,13 +23,13 @@ type pqWriteFlags struct {
 }
 
 const (
-	PQ_COMPRESSION             string = "pq-compression"
-	PQ_PARTITION_BY            string = "pq-partition-by"
-	PQ_FILENAME_PATTERN        string = "pq-filename-pattern"
-	PQ_OVERWRITE_OR_IGNORE     string = "pq-overwrite-or-ignore"
-	PQ_PER_THREAD_OUTPUT       string = "pq-per-thread-output"
-	PQCONV_CLI_CONFIG_DIR      string = "config-dir"
-	DFLT_PQCONV_CLI_CONFIG_DIR string = "$HOME/.pqconv-cli"
+	PQ_COMPRESSION               string = "pq-compression"
+	PQ_PARTITION_BY              string = "pq-partition-by"
+	PQ_FILENAME_PATTERN          string = "pq-filename-pattern"
+	PQ_OVERWRITE_OR_IGNORE       string = "pq-overwrite-or-ignore"
+	PQ_PER_THREAD_OUTPUT         string = "pq-per-thread-output"
+	FILECONV_CLI_CONFIG_DIR      string = "config-dir"
+	DFLT_FILECONV_CLI_CONFIG_DIR string = "$HOME/.fileconv-cli"
 
 	DUCKDB_CONFIG string = "duckdb-config"
 )
@@ -66,7 +66,7 @@ func registerGlobalFlags(rootCmd *cobra.Command) {
 	rootCmd.PersistentFlags().Bool(PQ_OVERWRITE_OR_IGNORE, false, "(Optional) Use this flag to allow overwriting an existing directory.")
 	rootCmd.PersistentFlags().String(PQ_FILENAME_PATTERN, "data_{i}.parquet", "(Optional) With this flag a pattern with {i} or {uuid} can be defined to create specific partition filenames.")
 	rootCmd.PersistentFlags().Bool(PQ_PER_THREAD_OUTPUT, false, "(Optional) If the final number of Parquet files is not important, writing one file per thread can significantly improve performance.")
-	rootCmd.PersistentFlags().String(PQCONV_CLI_CONFIG_DIR, DFLT_PQCONV_CLI_CONFIG_DIR, "(Optional) Config Directory for the CLI")
+	rootCmd.PersistentFlags().String(FILECONV_CLI_CONFIG_DIR, DFLT_FILECONV_CLI_CONFIG_DIR, "(Optional) Config Directory for the CLI")
 	rootCmd.PersistentFlags().StringSlice(DUCKDB_CONFIG, []string{}, `(Optional) List of DuckDB configuration parameters. e.g.
 --duckdb-config "SET threads TO 1"
 --duckdb-config "SET memory_limit = '10GB'"
@@ -115,9 +115,9 @@ func createConfigDir(cmd *cobra.Command) error {
 }
 
 func getConfigDir(cmd *cobra.Command) string {
-	configDir, err := cmd.Root().PersistentFlags().GetString(PQCONV_CLI_CONFIG_DIR)
-	if err != nil || configDir == DFLT_PQCONV_CLI_CONFIG_DIR {
-		configDir = os.Getenv("HOME") + "/.pqconv-cli"
+	configDir, err := cmd.Root().PersistentFlags().GetString(FILECONV_CLI_CONFIG_DIR)
+	if err != nil || configDir == DFLT_FILECONV_CLI_CONFIG_DIR {
+		configDir = os.Getenv("HOME") + "/.fileconv-cli"
 	}
 	return configDir
 }
@@ -162,7 +162,7 @@ func getColumnsFlag(flags *pflag.FlagSet, name string) (param.Columns, error) {
 }
 
 func getVersion() string {
-	duckdbVer, err := pqconv.GetDuckDBVersion()
+	duckdbVer, err := fileconv.GetDuckDBVersion()
 	if err != nil {
 		duckdbVer = err.Error()
 	}

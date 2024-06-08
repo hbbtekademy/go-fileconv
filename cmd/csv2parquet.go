@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/hbbtekademy/go-fileconv/pkg/fileconv"
 	"github.com/hbbtekademy/go-fileconv/pkg/param"
 	"github.com/hbbtekademy/go-fileconv/pkg/param/csvparam"
 	"github.com/hbbtekademy/go-fileconv/pkg/param/pqparam"
-	"github.com/hbbtekademy/go-fileconv/pkg/pqconv"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
@@ -85,7 +85,7 @@ func runCsv2ParquetCmd(cmd *cobra.Command) error {
 
 	dbFile := getDBFile(cmd)
 	defer deleteDBFile(dbFile)
-	client, err := pqconv.New(context.Background(), dbFile)
+	client, err := fileconv.New(context.Background(), dbFile)
 	if err != nil {
 		return fmt.Errorf("error: %w. failed getting duckdb client", err)
 	}
