@@ -1,6 +1,6 @@
-# CSV & JSON to Apache Parquet Converter
+# Convert Files Between Different Formats
 
-Convert CSV and JSON files to Apache Parquet format. Powered by [DuckDB](https://github.com/duckdb/duckdb)
+`go-fileconv` is a Command Line Utility and Go Library for converting files between different formats like JSON, CSV, Apache Parquet etc. Powered by [DuckDB](https://github.com/duckdb/duckdb)
 
 ## Usage
 
