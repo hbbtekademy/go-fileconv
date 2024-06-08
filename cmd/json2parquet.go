@@ -33,7 +33,7 @@ type json2ParquetFlags struct {
 
 var json2parquetCmd = &cobra.Command{
 	Use:   "json2parquet",
-	Short: "convert json files to apache parquet files (https://duckdb.org/docs/data/json/overview#parameters)",
+	Short: "Convert JSON files to Apache Parquet files (https://duckdb.org/docs/data/json/overview#parameters)",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := runJson2ParquetCmd(cmd)

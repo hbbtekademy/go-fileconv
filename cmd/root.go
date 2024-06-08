@@ -37,9 +37,9 @@ const (
 var Version = "development"
 
 var rootCmd = &cobra.Command{
-	Use:     "pqconv-cli",
-	Short:   "convert CSV and JSON files Apache Parquet format",
-	Long:    `Convert CSV and JSON files to Apache Parquet format.`,
+	Use:     "fileconv-cli",
+	Short:   "Convert files between different formats.",
+	Long:    `Convert file between different formats like JSON, CSV and Apache Parquet`,
 	Version: getVersion(),
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		return createConfigDir(cmd)

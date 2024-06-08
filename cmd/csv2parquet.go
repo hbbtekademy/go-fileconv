@@ -46,7 +46,7 @@ type csv2ParquetFlags struct {
 
 var csv2parquetCmd = &cobra.Command{
 	Use:   "csv2parquet",
-	Short: "convert csv files to apache parquet files (https://duckdb.org/docs/data/csv/overview#parameters)",
+	Short: "Convert CSV files to Apache Parquet files (https://duckdb.org/docs/data/csv/overview#parameters)",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := runCsv2ParquetCmd(cmd)
