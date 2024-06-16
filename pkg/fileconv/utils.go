@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/hbbtekademy/go-fileconv/pkg/model"
@@ -88,4 +89,60 @@ func (c *fileconv) createStructColTable(ctx context.Context, columnDesc *model.C
 func (c *fileconv) dropTable(ctx context.Context, tableName string) error {
 	_, err := c.db.ExecContext(ctx, fmt.Sprintf("DROP TABLE %s", tableName))
 	return err
+}
+
+func (c *fileconv) getFlattenedTableSelect(ctx context.Context, tableName string) (string, error) {
+
+	tableDesc, err := c.GetTableDesc(ctx, tableName)
+	if err != nil {
+		return "", fmt.Errorf("failed getting imported json table desc. error: %w", err)
+	}
+
+	flattenedColumns := []*model.ColumnDesc{}
+	for i := range tableDesc.ColumnDescs {
+		if tableDesc.ColumnDescs[i].ColType.IsStruct() {
+			cols, err := c.FlattenStructColumn(ctx, tableDesc.ColumnDescs[i])
+			if err != nil {
+				return "", fmt.Errorf("failed flattening column: %s. error: %w",
+					tableDesc.ColumnDescs[i].ColName, err)
+			}
+			flattenedColumns = append(flattenedColumns, cols...)
+			continue
+		}
+		flattenedColumns = append(flattenedColumns, tableDesc.ColumnDescs[i])
+
+	}
+
+	unnestedCols, err := tableDesc.GetUnnestedColumns()
+	if err != nil {
+		return "", fmt.Errorf("failed getting unnested columns. error: %w", err)
+	}
+
+	unnestedTableSelect := fmt.Sprintf("SELECT %s FROM %s", unnestedCols, tableName)
+	unnestedTableDesc, err := c.GetTableDesc(ctx, unnestedTableSelect)
+	if err != nil {
+		return "", fmt.Errorf("failed getting unnested table desc. error: %w", err)
+	}
+
+	if len(unnestedTableDesc.ColumnDescs) != len(flattenedColumns) {
+		return "", fmt.Errorf("unnested table columns and flattened columns not matching. unnested table cols: %v, flattened cols: %v",
+			unnestedTableDesc.ColumnDescs, flattenedColumns)
+	}
+
+	l := len(flattenedColumns)
+	var sb strings.Builder
+
+	sb.WriteString("SELECT ")
+	for i := range flattenedColumns {
+		sb.WriteString(fmt.Sprintf("%s AS %s",
+			unnestedTableDesc.ColumnDescs[i].ColName,
+			flattenedColumns[i].ColName))
+
+		if i < l-1 {
+			sb.WriteRune(',')
+		}
+	}
+
+	sb.WriteString(fmt.Sprintf(" FROM (%s)", unnestedTableSelect))
+	return sb.String(), nil
 }

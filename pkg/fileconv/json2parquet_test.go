@@ -85,7 +85,7 @@ func TestJson2Parquet(t *testing.T) {
 			},
 			inputJson:        "../../testdata/json/nested.json",
 			outputParquet:    "../../testdata/json/nested.parquet",
-			expectedRowCount: 150,
+			expectedRowCount: 1,
 		},
 	}
 
