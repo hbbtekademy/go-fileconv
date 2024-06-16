@@ -14,7 +14,10 @@ import (
 func (c *pqconv) Json2Parquet(ctx context.Context, srcJson string, dest string, pqWriteParams *pqparam.WriteParams, jsonParams ...jsonparam.ReadParam) error {
 	jsonReadParams := jsonparam.NewReadParams(jsonParams...)
 
-	_, err := c.db.ExecContext(ctx, fmt.Sprintf("COPY (SELECT * FROM read_json('%s' %s)) TO '%s' %s",
+	_, err := c.db.ExecContext(ctx, fmt.Sprintf(`
+		COPY (
+			SELECT * FROM read_json('%s' %s)
+		) TO '%s' %s`,
 		srcJson,
 		jsonReadParams.Params(),
 		dest,
