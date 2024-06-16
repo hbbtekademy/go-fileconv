@@ -7,6 +7,7 @@
 - [CLI](#cli)
 - [Go Module](#go-module)
 - [DuckDB Extensions](#duckdb-extensions)
+- [Supported Platforms](#supported-platforms)
 
 ### CLI
 
@@ -216,6 +217,13 @@ Extensions can be manually downloaded from `http://extensions.duckdb.org`
 curl -LO  https://extensions.duckdb.org/v1.0.0/linux_amd/icu.duckdb_extension.gz
 curl -LO  https://extensions.duckdb.org/v1.0.0/linux_amd/json.duckdb_extension.gz
 ```
+
+### Supported Platforms
+- Linux
+- MacOS: testing in progress...
+- Windows: Only with Linux on Windows
+  - WSL: https://learn.microsoft.com/en-us/windows/wsl/install
+  - [Oracle VirtualBox](https://www.virtualbox.org/)
 
 ## This utility depends on the following projects
 
