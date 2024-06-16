@@ -10,7 +10,7 @@ import (
 
 const testdataPath = "../../testdata"
 
-func validateParquetOutput(conv *pqconv, outputParquet, outputPartitionedParquetRegex string, expectedRowCount int) error {
+func validateParquetOutput(conv *fileconv, outputParquet, outputPartitionedParquetRegex string, expectedRowCount int) error {
 	parquetFile := outputParquet
 	if outputPartitionedParquetRegex != "" {
 		parquetFile = outputPartitionedParquetRegex

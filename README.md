@@ -61,6 +61,7 @@ Flags:
       --hive-partitioning            (Optional) Whether or not to interpret the path as a Hive partitioned path.
       --ignore-errors                (Optional) Whether to ignore parse errors (only possible when format is 'newline_delimited').
       --union-by-name                (Optional) Whether the schema's of multiple JSON files should be unified.
+      --flatten                      (Optional) Flatten nested json
 
 
       --pq-compression string        (Optional) The compression type for the output parquet file. (default "snappy")

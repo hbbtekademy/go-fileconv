@@ -41,6 +41,7 @@ type ReadParams struct {
 	sampleSize       uint64
 	timestampformat  string
 	unionByName      bool
+	flatten          bool
 }
 
 type ReadParam func(*ReadParams)
@@ -60,6 +61,7 @@ const (
 	dfltSampleSize      uint64            = 20480
 	dfltTimestampFormat string            = "iso"
 	dfltUnionByName     bool              = false
+	dfltFlatten         bool              = false
 )
 
 /*
@@ -244,6 +246,16 @@ func WithUnionByName(unionByName bool) ReadParam {
 	}
 }
 
+/*
+Flatten nested json.
+Default false
+*/
+func WithFlatten(flatten bool) ReadParam {
+	return func(jp *ReadParams) {
+		jp.flatten = flatten
+	}
+}
+
 // https://duckdb.org/docs/data/json/overview#parameters
 func NewReadParams(params ...ReadParam) *ReadParams {
 	jsonParams := &ReadParams{
@@ -262,6 +274,7 @@ func NewReadParams(params ...ReadParam) *ReadParams {
 		sampleSize:       dfltSampleSize,
 		timestampformat:  dfltTimestampFormat,
 		unionByName:      dfltUnionByName,
+		flatten:          dfltFlatten,
 	}
 
 	for _, param := range params {
@@ -341,4 +354,8 @@ func (p *ReadParams) Params() string {
 	}
 
 	return prefix + strings.Join(params, ",")
+}
+
+func (p *ReadParams) GetFlatten() bool {
+	return p.flatten
 }

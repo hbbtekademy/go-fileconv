@@ -75,6 +75,18 @@ func TestJson2Parquet(t *testing.T) {
 			outputPartitionedParquetRegex: "../../testdata/json/partition/species*/iris_*.parquet",
 			expectedRowCount:              150,
 		},
+		{
+			name: "TC4",
+			pqParams: []pqparam.WriteParam{
+				pqparam.WithCompression(pqparam.Zstd),
+			},
+			jsonReadParams: []jsonparam.ReadParam{
+				jsonparam.WithFlatten(true),
+			},
+			inputJson:        "../../testdata/json/nested.json",
+			outputParquet:    "../../testdata/json/nested.parquet",
+			expectedRowCount: 1,
+		},
 	}
 
 	for _, tc := range tests {

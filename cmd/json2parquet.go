@@ -29,6 +29,7 @@ type json2ParquetFlags struct {
 	timestampformat   string
 	unionByName       bool
 	columns           param.Columns
+	flatten           bool
 }
 
 var json2parquetCmd = &cobra.Command{
@@ -103,6 +104,7 @@ func runJson2ParquetCmd(cmd *cobra.Command) error {
 		jsonparam.WithSampleSize(jsonFlags.sampleSize),
 		jsonparam.WithTimestampFormat(jsonFlags.timestampformat),
 		jsonparam.WithUnionByName(jsonFlags.unionByName),
+		jsonparam.WithFlatten(jsonFlags.flatten),
 	)
 	if err != nil {
 		return fmt.Errorf("error: %w. failed converting json to parquet", err)
@@ -135,7 +137,8 @@ func registerJson2ParquetFlags(json2parquetCmd *cobra.Command) {
 	json2parquetCmd.Flags().Bool("filename", false, "(Optional) Whether or not an extra filename column should be included in the result.")
 	json2parquetCmd.Flags().Bool("hive-partitioning", false, "(Optional) Whether or not to interpret the path as a Hive partitioned path.")
 	json2parquetCmd.Flags().Bool("ignore-errors", false, "(Optional) Whether to ignore parse errors (only possible when format is 'newline_delimited').")
-	json2parquetCmd.Flags().Bool("union-by-name", false, "(Optional) Whether the schema's of multiple JSON files should be unified.\n\n")
+	json2parquetCmd.Flags().Bool("union-by-name", false, "(Optional) Whether the schema's of multiple JSON files should be unified.")
+	json2parquetCmd.Flags().Bool("flatten", false, "(Optional) Flatten nested json\n\n")
 }
 
 func getJsonReadFlags(flags *pflag.FlagSet) (*json2ParquetFlags, error) {
@@ -199,6 +202,10 @@ func getJsonReadFlags(flags *pflag.FlagSet) (*json2ParquetFlags, error) {
 	if err != nil {
 		return nil, err
 	}
+	flatten, err := flags.GetBool("flatten")
+	if err != nil {
+		return nil, err
+	}
 
 	return &json2ParquetFlags{
 		disableAutodetect: disableAutodetect,
@@ -216,5 +223,6 @@ func getJsonReadFlags(flags *pflag.FlagSet) (*json2ParquetFlags, error) {
 		timestampformat:   timestampformat,
 		unionByName:       unionByName,
 		columns:           columns,
+		flatten:           flatten,
 	}, nil
 }
