@@ -53,7 +53,7 @@ func (c *fileconv) FlattenStructColumn(ctx context.Context, columnDesc *model.Co
 }
 
 func (c *fileconv) GetTableDesc(ctx context.Context, table string) (*model.TableDesc, error) {
-	rows, err := c.db.QueryContext(ctx, fmt.Sprintf("SELECT COLUMN_NAME, COLUMN_TYPE FROM (DESCRIBE(%s))", table))
+	rows, err := c.db.QueryContext(ctx, fmt.Sprintf("SELECT COLUMN_NAME, COLUMN_TYPE FROM (DESCRIBE %s)", table))
 	if err != nil {
 		return nil, err
 	}
