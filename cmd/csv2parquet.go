@@ -60,6 +60,7 @@ var csv2parquetCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(csv2parquetCmd)
 	registerCsv2ParquetFlags(csv2parquetCmd)
+	registerPqWriteFlags(csv2parquetCmd)
 }
 
 func runCsv2ParquetCmd(cmd *cobra.Command) error {
@@ -73,7 +74,7 @@ func runCsv2ParquetCmd(cmd *cobra.Command) error {
 		return fmt.Errorf("error: %w. failed getting dest flag", err)
 	}
 
-	pqWriteFlags, err := getPqWriteFlags(cmd.Root().PersistentFlags())
+	pqWriteFlags, err := getPqWriteFlags(cmd.PersistentFlags())
 	if err != nil {
 		return fmt.Errorf("error: %w. failed getting parquet write flags", err)
 	}
@@ -181,7 +182,7 @@ Using this option implies that auto detection is not used.`)
 	cmd.Flags().Bool("ignore-errors", false, "(Optional) Whether to ignore parse errors (only possible when format is 'newline_delimited').")
 	cmd.Flags().Bool("null-padding", false, "(Optional) If this option is enabled, when a row lacks columns, it will pad the remaining columns on the right with null values.")
 	cmd.Flags().Bool("parallel", false, "(Optional) Whether or not the parallel CSV reader is used.")
-	cmd.Flags().Bool("union-by-name", false, "(Optional) Whether the schema's of multiple CSV files should be unified.")
+	cmd.Flags().Bool("union-by-name", false, "(Optional) Whether the schema's of multiple CSV files should be unified.\n\n")
 }
 
 func getCsvReadFlags(flags *pflag.FlagSet) (*csv2ParquetFlags, error) {

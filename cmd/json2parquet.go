@@ -47,6 +47,7 @@ var json2parquetCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(json2parquetCmd)
 	registerJson2ParquetFlags(json2parquetCmd)
+	registerPqWriteFlags(json2parquetCmd)
 }
 
 func runJson2ParquetCmd(cmd *cobra.Command) error {
@@ -60,7 +61,7 @@ func runJson2ParquetCmd(cmd *cobra.Command) error {
 		return fmt.Errorf("error: %w. failed getting dest flag", err)
 	}
 
-	pqWriteFlags, err := getPqWriteFlags(cmd.Root().PersistentFlags())
+	pqWriteFlags, err := getPqWriteFlags(cmd.PersistentFlags())
 	if err != nil {
 		return fmt.Errorf("error: %w. failed getting parquet write flags", err)
 	}
@@ -134,7 +135,7 @@ func registerJson2ParquetFlags(json2parquetCmd *cobra.Command) {
 	json2parquetCmd.Flags().Bool("filename", false, "(Optional) Whether or not an extra filename column should be included in the result.")
 	json2parquetCmd.Flags().Bool("hive-partitioning", false, "(Optional) Whether or not to interpret the path as a Hive partitioned path.")
 	json2parquetCmd.Flags().Bool("ignore-errors", false, "(Optional) Whether to ignore parse errors (only possible when format is 'newline_delimited').")
-	json2parquetCmd.Flags().Bool("union-by-name", false, "(Optional) Whether the schema's of multiple JSON files should be unified.")
+	json2parquetCmd.Flags().Bool("union-by-name", false, "(Optional) Whether the schema's of multiple JSON files should be unified.\n\n")
 }
 
 func getJsonReadFlags(flags *pflag.FlagSet) (*json2ParquetFlags, error) {

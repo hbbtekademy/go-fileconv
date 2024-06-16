@@ -61,16 +61,20 @@ func init() {
 func registerGlobalFlags(rootCmd *cobra.Command) {
 	rootCmd.Flags().SortFlags = false
 	rootCmd.PersistentFlags().SortFlags = false
-	rootCmd.PersistentFlags().String(PQ_COMPRESSION, "snappy", "(Optional) The compression type for the output parquet file.")
-	rootCmd.PersistentFlags().StringSlice(PQ_PARTITION_BY, []string{}, "(Optional) Write to a Hive partitioned data set of Parquet files.")
-	rootCmd.PersistentFlags().Bool(PQ_OVERWRITE_OR_IGNORE, false, "(Optional) Use this flag to allow overwriting an existing directory.")
-	rootCmd.PersistentFlags().String(PQ_FILENAME_PATTERN, "data_{i}.parquet", "(Optional) With this flag a pattern with {i} or {uuid} can be defined to create specific partition filenames.")
-	rootCmd.PersistentFlags().Bool(PQ_PER_THREAD_OUTPUT, false, "(Optional) If the final number of Parquet files is not important, writing one file per thread can significantly improve performance.")
 	rootCmd.PersistentFlags().String(FILECONV_CLI_CONFIG_DIR, DFLT_FILECONV_CLI_CONFIG_DIR, "(Optional) Config Directory for the CLI")
 	rootCmd.PersistentFlags().StringSlice(DUCKDB_CONFIG, []string{}, `(Optional) List of DuckDB configuration parameters. e.g.
 --duckdb-config "SET threads TO 1"
 --duckdb-config "SET memory_limit = '10GB'"
 Refer https://duckdb.org/docs/configuration/overview.html for list of all the configurations`)
+}
+
+func registerPqWriteFlags(cmd *cobra.Command) {
+	cmd.PersistentFlags().String(PQ_COMPRESSION, "snappy", "(Optional) The compression type for the output parquet file.")
+	cmd.PersistentFlags().StringSlice(PQ_PARTITION_BY, []string{}, "(Optional) Write to a Hive partitioned data set of Parquet files.")
+	cmd.PersistentFlags().Bool(PQ_OVERWRITE_OR_IGNORE, false, "(Optional) Use this flag to allow overwriting an existing directory.")
+	cmd.PersistentFlags().String(PQ_FILENAME_PATTERN, "data_{i}.parquet", "(Optional) With this flag a pattern with {i} or {uuid} can be defined to create specific partition filenames.")
+	cmd.PersistentFlags().Bool(PQ_PER_THREAD_OUTPUT, false, "(Optional) If the final number of Parquet files is not important, writing one file per thread can significantly improve performance.\n\n")
+
 }
 
 func getPqWriteFlags(flags *pflag.FlagSet) (*pqWriteFlags, error) {

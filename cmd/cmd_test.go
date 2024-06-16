@@ -48,6 +48,7 @@ func TestGetPqWriteFlags(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			mockCmd.ResetFlags()
 			registerGlobalFlags(mockCmd)
+			registerPqWriteFlags(mockCmd)
 
 			tc.setFlags(mockCmd)
 			actual, err := getPqWriteFlags(mockCmd.PersistentFlags())
