@@ -11,14 +11,14 @@ import (
 	"github.com/marcboeker/go-duckdb"
 )
 
-type pqconv struct {
+type fileconv struct {
 	db *sql.DB
 }
 
 type DuckDBConfig string
 
 // Returns an instance of parquet converter
-func New(ctx context.Context, dbFile string, duckdbConfigs ...DuckDBConfig) (*pqconv, error) {
+func New(ctx context.Context, dbFile string, duckdbConfigs ...DuckDBConfig) (*fileconv, error) {
 	dbConn, err := duckdb.NewConnector(dbFile, func(execer driver.ExecerContext) error {
 		bootQueries := []string{
 			"INSTALL 'icu'",
@@ -53,7 +53,7 @@ func New(ctx context.Context, dbFile string, duckdbConfigs ...DuckDBConfig) (*pq
 		return nil, err
 	}
 
-	return &pqconv{
+	return &fileconv{
 		db: db,
 	}, nil
 }
