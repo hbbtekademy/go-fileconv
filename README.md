@@ -24,18 +24,13 @@ Available Commands:
   completion   Generate the autocompletion script for the specified shell
 
 Flags:
-      --pq-compression string        (Optional) The compression type for the output parquet file. (default "snappy")
-      --pq-partition-by strings      (Optional) Write to a Hive partitioned data set of Parquet files.
-      --pq-overwrite-or-ignore       (Optional) Use this flag to allow overwriting an existing directory.
-      --pq-filename-pattern string   (Optional) With this flag a pattern with {i} or {uuid} can be defined to create specific partition filenames. (default "data_{i}.parquet")
-      --pq-per-thread-output         (Optional) If the final number of Parquet files is not important, writing one file per thread can significantly improve performance.
-      --config-dir string            (Optional) Config Directory for the CLI (default "$HOME/.pqconv-cli")
-      --duckdb-config strings        (Optional) List of DuckDB configuration parameters. e.g.
-                                     --duckdb-config "SET threads TO 1"
-                                     --duckdb-config "SET memory_limit = '10GB'"
-                                     Refer https://duckdb.org/docs/configuration/overview.html for list of all the configurations
-  -h, --help                         help for fileconv-cli
-  -v, --version                      version for fileconv-cli
+      --config-dir string       (Optional) Config Directory for the CLI (default "$HOME/.fileconv-cli")
+      --duckdb-config strings   (Optional) List of DuckDB configuration parameters. e.g.
+                                --duckdb-config "SET threads TO 1"
+                                --duckdb-config "SET memory_limit = '10GB'"
+                                Refer https://duckdb.org/docs/configuration/overview.html for list of all the configurations
+  -h, --help                    help for fileconv-cli
+  -v, --version                 version for fileconv-cli
 ```
 
 #### json2parquet
@@ -48,25 +43,34 @@ Usage:
   fileconv-cli json2parquet [flags]
 
 Flags:
-      --source string            full path of json file or regex for multiple json files.
-      --dest string              filename of output parquet file or directory in which to write hive partitioned parquet files.
-                                 
-      --disable-autodetect       (Optional) Disable automatically detecting the names of the keys and data types of the values.
-      --compression string       (Optional) The compression type for the file (auto, gzip, zstd). (default "auto")
-      --columns strings          (Optional) A list of key names and value types contained within the JSON file. (e.g., "key1:INTEGER,key2:VARCHAR"). If auto detect is enabled these will be inferred.
-      --format string            (Optional) Can be one of ('auto', 'unstructured', 'newline_delimited', 'array'). (default "array")
-      --dateformat string        (Optional) Specifies the date format to use when parsing dates. https://duckdb.org/docs/sql/functions/dateformat (default "iso")
-      --timestampformat string   (Optional) Specifies the date format to use when parsing timestamps. https://duckdb.org/docs/sql/functions/dateformat (default "iso")
-      --max-depth int            (Optional) Maximum nesting depth to which the automatic schema detection detects types. (default -1)
-      --max-obj-size uint        (Optional) The maximum size of a JSON object (in bytes). (default 16777216)
-      --records string           (Optional) Can be one of ('auto', 'true', 'false'). (default "auto")
-      --sample-size uint         (Optional) Flag to define number of sample objects for automatic JSON type detection. Set to -1 to scan the entire input file. (default 20480)
-      --convert-str-to-int       (Optional) Whether strings representing integer values should be converted to a numerical type.
-      --filename                 (Optional) Whether or not an extra filename column should be included in the result.
-      --hive-partitioning        (Optional) Whether or not to interpret the path as a Hive partitioned path.
-      --ignore-errors            (Optional) Whether to ignore parse errors (only possible when format is 'newline_delimited').
-      --union-by-name            (Optional) Whether the schema's of multiple JSON files should be unified.
-  -h, --help                     help for json2parquet
+      --source string                full path of json file or regex for multiple json files.
+      --dest string                  filename of output parquet file or directory in which to write hive partitioned parquet files.
+
+      --disable-autodetect           (Optional) Disable automatically detecting the names of the keys and data types of the values.
+      --compression string           (Optional) The compression type for the file (auto, gzip, zstd). (default "auto")
+      --columns strings              (Optional) A list of key names and value types contained within the JSON file. (e.g., "key1:INTEGER,key2:VARCHAR"). If auto detect is enabled these will be inferred.
+      --format string                (Optional) Can be one of ('auto', 'unstructured', 'newline_delimited', 'array'). (default "array")
+      --dateformat string            (Optional) Specifies the date format to use when parsing dates. https://duckdb.org/docs/sql/functions/dateformat (default "iso")
+      --timestampformat string       (Optional) Specifies the date format to use when parsing timestamps. https://duckdb.org/docs/sql/functions/dateformat (default "iso")
+      --max-depth int                (Optional) Maximum nesting depth to which the automatic schema detection detects types. (default -1)
+      --max-obj-size uint            (Optional) The maximum size of a JSON object (in bytes). (default 16777216)
+      --records string               (Optional) Can be one of ('auto', 'true', 'false'). (default "auto")
+      --sample-size uint             (Optional) Flag to define number of sample objects for automatic JSON type detection. Set to -1 to scan the entire input file. (default 20480)
+      --convert-str-to-int           (Optional) Whether strings representing integer values should be converted to a numerical type.
+      --filename                     (Optional) Whether or not an extra filename column should be included in the result.
+      --hive-partitioning            (Optional) Whether or not to interpret the path as a Hive partitioned path.
+      --ignore-errors                (Optional) Whether to ignore parse errors (only possible when format is 'newline_delimited').
+      --union-by-name                (Optional) Whether the schema's of multiple JSON files should be unified.
+
+
+      --pq-compression string        (Optional) The compression type for the output parquet file. (default "snappy")
+      --pq-filename-pattern string   (Optional) With this flag a pattern with {i} or {uuid} can be defined to create specific partition filenames. (default "data_{i}.parquet")
+      --pq-overwrite-or-ignore       (Optional) Use this flag to allow overwriting an existing directory.
+      --pq-partition-by strings      (Optional) Write to a Hive partitioned data set of Parquet files.
+      --pq-per-thread-output         (Optional) If the final number of Parquet files is not important, writing one file per thread can significantly improve performance.
+
+
+  -h, --help                         help for json2parquet
 ```
 
 #### csv2parquet
@@ -81,7 +85,7 @@ Usage:
 Flags:
       --source string                  full path of csv file or regex for multiple csv files.
       --dest string                    filename of output parquet file or directory in which to write hive partitioned parquet files.
-                                       
+
       --delim string                   (Optional) Specifies the character that separates columns within each row (line) of the file. (default ",")
       --quote string                   (Optional) Specifies the quoting string to be used when a data value is quoted. (default "\"")
       --new-line string                (Optional) Set the new line character(s) in the file. Options are '\r','\n', or '\r\n'.
@@ -93,10 +97,10 @@ Flags:
       --max-line-size int              (Optional) The maximum line size in bytes. (default 2097152)
       --sample-size int                (Optional) The number of sample rows for auto detection of parameters. (default 20480)
       --skip int                       (Optional) The number of lines at the top of the file to skip.
-      --force-not-null strings         (Optional) Do not match the specified columns’ values against the NULL string. 
+      --force-not-null strings         (Optional) Do not match the specified columns’ values against the NULL string.
                                        In the default case where the NULL string is empty, this means that empty values will be read as zero-length strings rather than NULLs.
-      --auto-type-candidates strings   (Optional) This option allows you to specify the types that the sniffer will use when detecting CSV column types. 
-                                       The VARCHAR type is always included in the detected types (as a fallback option). 
+      --auto-type-candidates strings   (Optional) This option allows you to specify the types that the sniffer will use when detecting CSV column types.
+                                       The VARCHAR type is always included in the detected types (as a fallback option).
                                        Valid values (SQLNULL, BOOLEAN, BIGINT, DOUBLE, TIME, DATE, TIMESTAMP, VARCHAR).
       --columns strings                (Optional) A list that specifies the column names and column types contained within the CSV file (e.g., col1:INTEGER,col2:VARCHAR).
                                        The order of the Name:Type definitions should match the order of columns in the CSV file.
@@ -115,6 +119,15 @@ Flags:
       --null-padding                   (Optional) If this option is enabled, when a row lacks columns, it will pad the remaining columns on the right with null values.
       --parallel                       (Optional) Whether or not the parallel CSV reader is used.
       --union-by-name                  (Optional) Whether the schema's of multiple CSV files should be unified.
+
+
+      --pq-compression string          (Optional) The compression type for the output parquet file. (default "snappy")
+      --pq-filename-pattern string     (Optional) With this flag a pattern with {i} or {uuid} can be defined to create specific partition filenames. (default "data_{i}.parquet")
+      --pq-overwrite-or-ignore         (Optional) Use this flag to allow overwriting an existing directory.
+      --pq-partition-by strings        (Optional) Write to a Hive partitioned data set of Parquet files.
+      --pq-per-thread-output           (Optional) If the final number of Parquet files is not important, writing one file per thread can significantly improve performance.
+
+
   -h, --help                           help for csv2parquet
 ```
 
