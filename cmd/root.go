@@ -191,3 +191,12 @@ func getDuckDBConfig(cmd *cobra.Command) ([]fileconv.DuckDBConfig, error) {
 
 	return duckDBConfigs, nil
 }
+
+func getDescribeFlag(cmd *cobra.Command) bool {
+	desc, err := cmd.PersistentFlags().GetBool(FILECONV_CLI_DESC)
+	if err != nil {
+		return false
+	}
+
+	return desc
+}

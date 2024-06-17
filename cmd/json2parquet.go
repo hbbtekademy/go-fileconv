@@ -30,6 +30,7 @@ type json2ParquetFlags struct {
 	unionByName       bool
 	columns           param.Columns
 	flatten           bool
+	describe          bool
 }
 
 var json2parquetCmd = &cobra.Command{
@@ -71,6 +72,7 @@ func runJson2ParquetCmd(cmd *cobra.Command) error {
 	if err != nil {
 		return fmt.Errorf("error: %w. failed getting json read flags", err)
 	}
+	jsonFlags.describe = getDescribeFlag(rootCmd)
 
 	duckdbConfigs, err := getDuckDBConfig(rootCmd)
 	if err != nil {

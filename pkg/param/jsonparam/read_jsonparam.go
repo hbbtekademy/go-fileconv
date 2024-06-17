@@ -42,6 +42,7 @@ type ReadParams struct {
 	timestampformat  string
 	unionByName      bool
 	flatten          bool
+	describe         bool
 }
 
 type ReadParam func(*ReadParams)
@@ -62,6 +63,7 @@ const (
 	dfltTimestampFormat string            = "iso"
 	dfltUnionByName     bool              = false
 	dfltFlatten         bool              = false
+	dfltDescribe        bool              = false
 )
 
 /*
@@ -256,6 +258,16 @@ func WithFlatten(flatten bool) ReadParam {
 	}
 }
 
+/*
+Describe the file columns.
+Default false
+*/
+func WithDescribe(describe bool) ReadParam {
+	return func(jp *ReadParams) {
+		jp.describe = describe
+	}
+}
+
 // https://duckdb.org/docs/data/json/overview#parameters
 func NewReadParams(params ...ReadParam) *ReadParams {
 	jsonParams := &ReadParams{
@@ -275,6 +287,7 @@ func NewReadParams(params ...ReadParam) *ReadParams {
 		timestampformat:  dfltTimestampFormat,
 		unionByName:      dfltUnionByName,
 		flatten:          dfltFlatten,
+		describe:         dfltDescribe,
 	}
 
 	for _, param := range params {
@@ -358,4 +371,8 @@ func (p *ReadParams) Params() string {
 
 func (p *ReadParams) GetFlatten() bool {
 	return p.flatten
+}
+
+func (p *ReadParams) GetDescribe() bool {
+	return p.describe
 }

@@ -42,6 +42,7 @@ type csv2ParquetFlags struct {
 	timestampformat    string
 	types              param.Columns
 	unionByName        bool
+	describe           bool
 }
 
 var csv2parquetCmd = &cobra.Command{
@@ -83,6 +84,7 @@ func runCsv2ParquetCmd(cmd *cobra.Command) error {
 	if err != nil {
 		return fmt.Errorf("error: %w. failed getting csv read flags", err)
 	}
+	csvFlags.describe = getDescribeFlag(rootCmd)
 
 	duckdbConfigs, err := getDuckDBConfig(rootCmd)
 	if err != nil {
