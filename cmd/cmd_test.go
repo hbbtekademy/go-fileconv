@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"github.com/hbbtekademy/go-fileconv/pkg/fileconv"
 	"github.com/hbbtekademy/go-fileconv/pkg/param"
 	"github.com/spf13/cobra"
 )
@@ -273,6 +274,41 @@ func TestGetCsvReadFlags(t *testing.T) {
 			}
 			if !reflect.DeepEqual(actual, tc.expectedFlags) {
 				t.Fatalf("expected:\n%#v\nbut got:\n%#v", tc.expectedFlags, actual)
+			}
+		})
+	}
+}
+
+func TestGetDuckDBConfig(t *testing.T) {
+	tests := []struct {
+		name          string
+		setFlags      func(cmd *cobra.Command)
+		expectedFlags []fileconv.DuckDBConfig
+	}{
+		{
+			name: "TC1",
+			setFlags: func(cmd *cobra.Command) {
+				cmd.PersistentFlags().Set(DUCKDB_CONFIG, "SET threads TO 1")
+				cmd.PersistentFlags().Set(DUCKDB_CONFIG, "SET memory_limit = '10GB'")
+			},
+			expectedFlags: []fileconv.DuckDBConfig{"SET threads TO 1", "SET memory_limit = '10GB'"},
+		},
+	}
+
+	mockCmd := &cobra.Command{}
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			mockCmd.ResetFlags()
+			registerGlobalFlags(mockCmd)
+
+			tc.setFlags(mockCmd)
+			actual, err := getDuckDBConfig(mockCmd)
+			if err != nil {
+				t.Fatalf("failed getting duckdb configs. error: %v", err)
+			}
+
+			if !reflect.DeepEqual(tc.expectedFlags, actual) {
+				t.Fatalf("expected: %v but got: %v", tc.expectedFlags, actual)
 			}
 		})
 	}

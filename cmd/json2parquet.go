@@ -72,9 +72,15 @@ func runJson2ParquetCmd(cmd *cobra.Command) error {
 		return fmt.Errorf("error: %w. failed getting json read flags", err)
 	}
 
+	duckdbConfigs, err := getDuckDBConfig(rootCmd)
+	if err != nil {
+		return fmt.Errorf("error: %w. failed getting duckdb configs", err)
+	}
+
 	dbFile := getDBFile(cmd)
 	defer deleteDBFile(dbFile)
-	client, err := fileconv.New(context.Background(), dbFile)
+
+	client, err := fileconv.New(context.Background(), dbFile, duckdbConfigs...)
 	if err != nil {
 		return fmt.Errorf("error: %w. failed getting duckdb client", err)
 	}

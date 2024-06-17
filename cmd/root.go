@@ -23,13 +23,17 @@ type pqWriteFlags struct {
 }
 
 const (
-	PQ_COMPRESSION               string = "pq-compression"
-	PQ_PARTITION_BY              string = "pq-partition-by"
-	PQ_FILENAME_PATTERN          string = "pq-filename-pattern"
-	PQ_OVERWRITE_OR_IGNORE       string = "pq-overwrite-or-ignore"
-	PQ_PER_THREAD_OUTPUT         string = "pq-per-thread-output"
-	FILECONV_CLI_CONFIG_DIR      string = "config-dir"
+	PQ_COMPRESSION         string = "pq-compression"
+	PQ_PARTITION_BY        string = "pq-partition-by"
+	PQ_FILENAME_PATTERN    string = "pq-filename-pattern"
+	PQ_OVERWRITE_OR_IGNORE string = "pq-overwrite-or-ignore"
+	PQ_PER_THREAD_OUTPUT   string = "pq-per-thread-output"
+
+	FILECONV_CLI_CONFIG_DIR string = "config-dir"
+	FILECONV_CLI_DESC       string = "describe"
+
 	DFLT_FILECONV_CLI_CONFIG_DIR string = "$HOME/.fileconv-cli"
+	DFLT_FILECONV_CLI_DESC       bool   = false
 
 	DUCKDB_CONFIG string = "duckdb-config"
 )
@@ -61,6 +65,7 @@ func init() {
 func registerGlobalFlags(rootCmd *cobra.Command) {
 	rootCmd.Flags().SortFlags = false
 	rootCmd.PersistentFlags().SortFlags = false
+	rootCmd.PersistentFlags().Bool(FILECONV_CLI_DESC, DFLT_FILECONV_CLI_DESC, "(Optional) Describe the file columns")
 	rootCmd.PersistentFlags().String(FILECONV_CLI_CONFIG_DIR, DFLT_FILECONV_CLI_CONFIG_DIR, "(Optional) Config Directory for the CLI")
 	rootCmd.PersistentFlags().StringSlice(DUCKDB_CONFIG, []string{}, `(Optional) List of DuckDB configuration parameters. e.g.
 --duckdb-config "SET threads TO 1"
@@ -171,4 +176,18 @@ func getVersion() string {
 		duckdbVer = err.Error()
 	}
 	return fmt.Sprintf("%s, duckdb version: %s", Version, duckdbVer)
+}
+
+func getDuckDBConfig(cmd *cobra.Command) ([]fileconv.DuckDBConfig, error) {
+	configs, err := cmd.PersistentFlags().GetStringSlice(DUCKDB_CONFIG)
+	if err != nil {
+		return nil, err
+	}
+
+	duckDBConfigs := make([]fileconv.DuckDBConfig, 0, len(configs))
+	for _, c := range configs {
+		duckDBConfigs = append(duckDBConfigs, fileconv.DuckDBConfig(c))
+	}
+
+	return duckDBConfigs, nil
 }
