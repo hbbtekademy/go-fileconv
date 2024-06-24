@@ -25,6 +25,7 @@ Available Commands:
   completion   Generate the autocompletion script for the specified shell
 
 Flags:
+      --describe                (Optional) Describe the file columns
       --config-dir string       (Optional) Config Directory for the CLI (default "$HOME/.fileconv-cli")
       --duckdb-config strings   (Optional) List of DuckDB configuration parameters. e.g.
                                 --duckdb-config "SET threads TO 1"
@@ -219,6 +220,7 @@ curl -LO  https://extensions.duckdb.org/v1.0.0/linux_amd/json.duckdb_extension.g
 ```
 
 ### Supported Platforms
+
 - Linux
 - MacOS: testing in progress...
 - Windows: Only with Linux on Windows
