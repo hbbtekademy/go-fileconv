@@ -117,3 +117,65 @@ func TestJson2Parquet(t *testing.T) {
 		})
 	}
 }
+
+func TestDescribeJson(t *testing.T) {
+	tests := []struct {
+		name           string
+		jsonReadParams []jsonparam.ReadParam
+		inputJson      string
+		expectedDesc   string
+	}{
+		{
+			name: "TC1",
+			jsonReadParams: []jsonparam.ReadParam{
+				jsonparam.WithFlatten(true),
+				jsonparam.WithDescribe(true),
+			},
+			inputJson: "../../testdata/json/nested.json",
+			expectedDesc: `COLUMN NAME     | COLUMN TYPE 
+================|============
+a1              | VARCHAR     
+a2_b1           | VARCHAR     
+a2_b2_c1        | BIGINT      
+a2_b2_c2        | VARCHAR     
+a2_b2_c3_d1     | BIGINT      
+a2_b3_d1        | BIGINT      
+a2_b3_d2        | VARCHAR     
+a3              | VARCHAR     
+a4_b1           | VARCHAR     
+`,
+		},
+		{
+			name: "TC2",
+			jsonReadParams: []jsonparam.ReadParam{
+				jsonparam.WithDescribe(true),
+			},
+			inputJson: "../../testdata/json/nested.json",
+			expectedDesc: `COLUMN NAME| COLUMN TYPE                                                                                                      
+=======|=================================================================================================================
+a1     | VARCHAR                                                                                                          
+a2     | STRUCT(b1 VARCHAR, b2 STRUCT(c1 BIGINT, c2 VARCHAR, c3 STRUCT(d1 BIGINT)), b3 STRUCT(d1 DOUBLE, d2 VARCHAR))     
+a3     | VARCHAR                                                                                                          
+a4     | STRUCT(b1 VARCHAR)                                                                                               
+`,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			conv, err := New(context.Background(), "")
+			if err != nil {
+				t.Fatalf("failed getting duckdb client. error: %v", err)
+			}
+
+			actual, err := conv.describeJson(context.Background(), tc.inputJson, jsonparam.NewReadParams(tc.jsonReadParams...))
+			if err != nil {
+				t.Fatalf("failed getting json desc. error: %v", err)
+			}
+
+			if actual != tc.expectedDesc {
+				t.Fatalf("expected:\n%s\nbut got:\n%s\n", tc.expectedDesc, actual)
+			}
+		})
+	}
+}

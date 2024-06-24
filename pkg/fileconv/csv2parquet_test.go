@@ -107,3 +107,46 @@ func TestCsv2Parquet(t *testing.T) {
 		})
 	}
 }
+
+func TestDescribeCsv(t *testing.T) {
+	tests := []struct {
+		name          string
+		csvReadParams []csvparam.ReadParam
+		inputCsv      string
+		expectedDesc  string
+	}{
+		{
+			name: "TC1",
+			csvReadParams: []csvparam.ReadParam{
+				csvparam.WithDescribe(true),
+			},
+			inputCsv: "../../testdata/csv/iris5_quotedNumber.csv",
+			expectedDesc: `COLUMN NAME | COLUMN TYPE 
+============|============
+column0     | DOUBLE      
+column1     | DOUBLE      
+column2     | DOUBLE      
+column3     | DOUBLE      
+column4     | VARCHAR     
+`,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			conv, err := New(context.Background(), "")
+			if err != nil {
+				t.Fatalf("failed getting file converter. error: %v", err)
+			}
+
+			actual, err := conv.describeCsv(context.Background(), tc.inputCsv, csvparam.NewReadParams(tc.csvReadParams...))
+			if err != nil {
+				t.Fatalf("failed getting csv desc. error: %v", err)
+			}
+
+			if actual != tc.expectedDesc {
+				t.Fatalf("expected:\n%s\nbut got:\n%s\n", tc.expectedDesc, actual)
+			}
+		})
+	}
+}

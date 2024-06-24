@@ -42,6 +42,7 @@ type csv2ParquetFlags struct {
 	timestampformat    string
 	types              param.Columns
 	unionByName        bool
+	describe           bool
 }
 
 var csv2parquetCmd = &cobra.Command{
@@ -83,10 +84,17 @@ func runCsv2ParquetCmd(cmd *cobra.Command) error {
 	if err != nil {
 		return fmt.Errorf("error: %w. failed getting csv read flags", err)
 	}
+	csvFlags.describe = getDescribeFlag(rootCmd)
+
+	duckdbConfigs, err := getDuckDBConfig(rootCmd)
+	if err != nil {
+		return fmt.Errorf("error: %w. failed getting duckdb configs", err)
+	}
 
 	dbFile := getDBFile(cmd)
 	defer deleteDBFile(dbFile)
-	client, err := fileconv.New(context.Background(), dbFile)
+
+	client, err := fileconv.New(context.Background(), dbFile, duckdbConfigs...)
 	if err != nil {
 		return fmt.Errorf("error: %w. failed getting duckdb client", err)
 	}
@@ -129,6 +137,7 @@ func runCsv2ParquetCmd(cmd *cobra.Command) error {
 		csvparam.WithTimestampFormat(csvFlags.timestampformat),
 		csvparam.WithTypes(csvFlags.types),
 		csvparam.WithUnionByName(csvFlags.unionByName),
+		csvparam.WithDescribe(csvFlags.describe),
 	)
 	if err != nil {
 		return fmt.Errorf("error: %w. failed converting csv to parquet", err)

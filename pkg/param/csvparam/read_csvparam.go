@@ -37,6 +37,7 @@ type ReadParams struct {
 	timestampformat    string
 	types              param.Columns
 	unionByName        bool
+	describe           bool
 }
 
 type ReadParam func(*ReadParams)
@@ -64,6 +65,7 @@ const (
 	dfltSkip             int64             = 0
 	dfltTimestampformat  string            = ""
 	dfltUnionByName      bool              = false
+	dfltDescribe         bool              = false
 )
 
 func WithAllVarchar(allVarchar bool) ReadParam {
@@ -234,6 +236,12 @@ func WithUnionByName(unionByName bool) ReadParam {
 	}
 }
 
+func WithDescribe(describe bool) ReadParam {
+	return func(rp *ReadParams) {
+		rp.describe = describe
+	}
+}
+
 // https://duckdb.org/docs/data/csv/overview#parameters
 func NewReadParams(params ...ReadParam) *ReadParams {
 	csvReadParams := &ReadParams{
@@ -265,6 +273,7 @@ func NewReadParams(params ...ReadParam) *ReadParams {
 		timestampformat:    dfltTimestampformat,
 		types:              param.Columns{},
 		unionByName:        dfltUnionByName,
+		describe:           dfltDescribe,
 	}
 
 	for _, param := range params {
@@ -369,4 +378,12 @@ func (p *ReadParams) Params() string {
 	}
 
 	return prefix + strings.Join(params, ",")
+}
+
+func (p *ReadParams) GetDescribe() bool {
+	return p.describe
+}
+
+func (p *ReadParams) GetSampleSize() int64 {
+	return p.sampleSize
 }

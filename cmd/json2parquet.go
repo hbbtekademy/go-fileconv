@@ -30,6 +30,7 @@ type json2ParquetFlags struct {
 	unionByName       bool
 	columns           param.Columns
 	flatten           bool
+	describe          bool
 }
 
 var json2parquetCmd = &cobra.Command{
@@ -71,10 +72,17 @@ func runJson2ParquetCmd(cmd *cobra.Command) error {
 	if err != nil {
 		return fmt.Errorf("error: %w. failed getting json read flags", err)
 	}
+	jsonFlags.describe = getDescribeFlag(rootCmd)
+
+	duckdbConfigs, err := getDuckDBConfig(rootCmd)
+	if err != nil {
+		return fmt.Errorf("error: %w. failed getting duckdb configs", err)
+	}
 
 	dbFile := getDBFile(cmd)
 	defer deleteDBFile(dbFile)
-	client, err := fileconv.New(context.Background(), dbFile)
+
+	client, err := fileconv.New(context.Background(), dbFile, duckdbConfigs...)
 	if err != nil {
 		return fmt.Errorf("error: %w. failed getting duckdb client", err)
 	}
@@ -105,6 +113,7 @@ func runJson2ParquetCmd(cmd *cobra.Command) error {
 		jsonparam.WithTimestampFormat(jsonFlags.timestampformat),
 		jsonparam.WithUnionByName(jsonFlags.unionByName),
 		jsonparam.WithFlatten(jsonFlags.flatten),
+		jsonparam.WithDescribe(jsonFlags.describe),
 	)
 	if err != nil {
 		return fmt.Errorf("error: %w. failed converting json to parquet", err)
