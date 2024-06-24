@@ -9,11 +9,15 @@ import (
 )
 
 // Convert csv files to parquet files
-func (c *fileconv) Csv2Parquet(ctx context.Context, srcJson string, dest string, pqWriteParams *pqparam.WriteParams, csvParams ...csvparam.ReadParam) error {
+func (c *fileconv) Csv2Parquet(ctx context.Context, srcCsv string, dest string, pqWriteParams *pqparam.WriteParams, csvParams ...csvparam.ReadParam) error {
 	csvReadParams := csvparam.NewReadParams(csvParams...)
 
+	if csvReadParams.GetDescribe() {
+		return c.describeCsv(ctx, srcCsv, csvReadParams)
+	}
+
 	_, err := c.db.ExecContext(ctx, fmt.Sprintf("COPY (SELECT * FROM read_csv('%s' %s)) TO '%s' %s",
-		srcJson,
+		srcCsv,
 		csvReadParams.Params(),
 		dest,
 		pqWriteParams.Params()))
@@ -21,5 +25,20 @@ func (c *fileconv) Csv2Parquet(ctx context.Context, srcJson string, dest string,
 		return err
 	}
 
+	return nil
+}
+
+func (c *fileconv) describeCsv(ctx context.Context, srcCsv string, csvReadParams *csvparam.ReadParams) error {
+	table := fmt.Sprintf(`SELECT * FROM read_csv('%s' %s) USING SAMPLE %d`,
+		srcCsv,
+		csvReadParams.Params(),
+		csvReadParams.GetSampleSize())
+
+	tableDesc, err := c.GetTableDesc(ctx, table)
+	if err != nil {
+		return fmt.Errorf("failed getting csv desc. error: %v", err)
+	}
+
+	fmt.Println(tableDesc)
 	return nil
 }

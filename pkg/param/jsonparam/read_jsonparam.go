@@ -376,3 +376,7 @@ func (p *ReadParams) GetFlatten() bool {
 func (p *ReadParams) GetDescribe() bool {
 	return p.describe
 }
+
+func (p *ReadParams) GetSampleSize() uint64 {
+	return p.sampleSize
+}

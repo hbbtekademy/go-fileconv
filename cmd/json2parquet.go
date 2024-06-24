@@ -113,6 +113,7 @@ func runJson2ParquetCmd(cmd *cobra.Command) error {
 		jsonparam.WithTimestampFormat(jsonFlags.timestampformat),
 		jsonparam.WithUnionByName(jsonFlags.unionByName),
 		jsonparam.WithFlatten(jsonFlags.flatten),
+		jsonparam.WithDescribe(jsonFlags.describe),
 	)
 	if err != nil {
 		return fmt.Errorf("error: %w. failed converting json to parquet", err)

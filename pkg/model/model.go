@@ -45,3 +45,35 @@ func (t *TableDesc) GetUnnestedColumns() (string, error) {
 
 	return sb.String(), nil
 }
+
+func (t *TableDesc) String() string {
+	var sb strings.Builder
+	maxColLen, maxColTypeLen := t.getMaxLen()
+
+	formatter := fmt.Sprintf("%%-%ds| %%-%ds\n", maxColLen+5, maxColTypeLen+5)
+	sb.WriteString(fmt.Sprintf(formatter, "COLUMN NAME", "COLUMN TYPE"))
+	sb.WriteString(fmt.Sprintf("%s|%s\n", strings.Repeat("=", maxColLen+5), strings.Repeat("=", maxColTypeLen+5)))
+
+	for i := range t.ColumnDescs {
+		sb.WriteString(fmt.Sprintf(formatter, t.ColumnDescs[i].ColName, t.ColumnDescs[i].ColType))
+	}
+
+	return sb.String()
+}
+
+func (t *TableDesc) getMaxLen() (int, int) {
+	maxColName := 0
+	maxColType := 0
+	colDescs := t.ColumnDescs
+
+	for i := range colDescs {
+		if len(colDescs[i].ColName) > maxColName {
+			maxColName = len(colDescs[i].ColName)
+		}
+		if len(colDescs[i].ColType) > maxColType {
+			maxColType = len(colDescs[i].ColType)
+		}
+	}
+
+	return maxColName, maxColType
+}

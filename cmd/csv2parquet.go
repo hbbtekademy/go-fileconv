@@ -137,6 +137,7 @@ func runCsv2ParquetCmd(cmd *cobra.Command) error {
 		csvparam.WithTimestampFormat(csvFlags.timestampformat),
 		csvparam.WithTypes(csvFlags.types),
 		csvparam.WithUnionByName(csvFlags.unionByName),
+		csvparam.WithDescribe(csvFlags.describe),
 	)
 	if err != nil {
 		return fmt.Errorf("error: %w. failed converting csv to parquet", err)

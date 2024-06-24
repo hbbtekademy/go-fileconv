@@ -383,3 +383,7 @@ func (p *ReadParams) Params() string {
 func (p *ReadParams) GetDescribe() bool {
 	return p.describe
 }
+
+func (p *ReadParams) GetSampleSize() int64 {
+	return p.sampleSize
+}
