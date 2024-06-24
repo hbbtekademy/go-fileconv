@@ -17,7 +17,13 @@ func (c *fileconv) Json2Parquet(ctx context.Context, srcJson string, dest string
 	jsonReadParams := jsonparam.NewReadParams(jsonParams...)
 
 	if jsonReadParams.GetDescribe() {
-		return c.describeJson(ctx, srcJson, jsonReadParams)
+		desc, err := c.describeJson(ctx, srcJson, jsonReadParams)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(desc)
+		return nil
 	}
 
 	if !jsonReadParams.GetFlatten() {
@@ -84,7 +90,7 @@ func (c *fileconv) ImportJson(ctx context.Context, srcJson string, jsonReadParam
 	return tableName, nil
 }
 
-func (c *fileconv) describeJson(ctx context.Context, srcJson string, jsonReadParams *jsonparam.ReadParams) error {
+func (c *fileconv) describeJson(ctx context.Context, srcJson string, jsonReadParams *jsonparam.ReadParams) (string, error) {
 	if !jsonReadParams.GetFlatten() {
 		table := fmt.Sprintf(`SELECT * FROM read_json('%s' %s) USING SAMPLE %d`,
 			srcJson,
@@ -93,29 +99,27 @@ func (c *fileconv) describeJson(ctx context.Context, srcJson string, jsonReadPar
 
 		tableDesc, err := c.GetTableDesc(ctx, table)
 		if err != nil {
-			return fmt.Errorf("failed getting json desc. error: %v", err)
+			return "", fmt.Errorf("failed getting json desc. error: %v", err)
 		}
 
-		fmt.Println(tableDesc)
-		return nil
+		return tableDesc.String(), nil
 	}
 
 	jsonTableName, err := c.ImportJson(ctx, srcJson, jsonReadParams, jsonReadParams.GetSampleSize())
 	if err != nil {
-		return fmt.Errorf("failed importing json. error: %w", err)
+		return "", fmt.Errorf("failed importing json. error: %w", err)
 	}
 	defer c.dropTable(ctx, jsonTableName)
 
 	flattendTableSelect, err := c.getFlattenedTableSelect(ctx, jsonTableName)
 	if err != nil {
-		return fmt.Errorf("failed getting flattend table. error: %w", err)
+		return "", fmt.Errorf("failed getting flattend table. error: %w", err)
 	}
 
 	tableDesc, err := c.GetTableDesc(ctx, flattendTableSelect)
 	if err != nil {
-		return fmt.Errorf("failed getting json desc. error: %v", err)
+		return "", fmt.Errorf("failed getting json desc. error: %v", err)
 	}
 
-	fmt.Println(tableDesc)
-	return nil
+	return tableDesc.String(), nil
 }
