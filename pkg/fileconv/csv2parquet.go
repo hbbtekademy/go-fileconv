@@ -13,7 +13,13 @@ func (c *fileconv) Csv2Parquet(ctx context.Context, srcCsv string, dest string, 
 	csvReadParams := csvparam.NewReadParams(csvParams...)
 
 	if csvReadParams.GetDescribe() {
-		return c.describeCsv(ctx, srcCsv, csvReadParams)
+		desc, err := c.describeCsv(ctx, srcCsv, csvReadParams)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(desc)
+		return nil
 	}
 
 	_, err := c.db.ExecContext(ctx, fmt.Sprintf("COPY (SELECT * FROM read_csv('%s' %s)) TO '%s' %s",
@@ -28,7 +34,7 @@ func (c *fileconv) Csv2Parquet(ctx context.Context, srcCsv string, dest string, 
 	return nil
 }
 
-func (c *fileconv) describeCsv(ctx context.Context, srcCsv string, csvReadParams *csvparam.ReadParams) error {
+func (c *fileconv) describeCsv(ctx context.Context, srcCsv string, csvReadParams *csvparam.ReadParams) (string, error) {
 	table := fmt.Sprintf(`SELECT * FROM read_csv('%s' %s) USING SAMPLE %d`,
 		srcCsv,
 		csvReadParams.Params(),
@@ -36,9 +42,8 @@ func (c *fileconv) describeCsv(ctx context.Context, srcCsv string, csvReadParams
 
 	tableDesc, err := c.GetTableDesc(ctx, table)
 	if err != nil {
-		return fmt.Errorf("failed getting csv desc. error: %v", err)
+		return "", fmt.Errorf("failed getting csv desc. error: %v", err)
 	}
 
-	fmt.Println(tableDesc)
-	return nil
+	return tableDesc.String(), nil
 }
