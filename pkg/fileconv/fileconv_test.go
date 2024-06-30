@@ -1,7 +1,6 @@
 package fileconv
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"path"
@@ -16,12 +15,10 @@ func validateParquetOutput(conv *fileconv, outputParquet, outputPartitionedParqu
 		parquetFile = outputPartitionedParquetRegex
 	}
 
-	rowcount := 0
-	if err := conv.db.QueryRowContext(context.Background(),
-		fmt.Sprintf("select count(1) from '%s'", parquetFile)).Scan(&rowcount); err != nil {
+	rowcount, err := getParquetRowCount(conv, parquetFile)
+	if err != nil {
 		return fmt.Errorf("failed validating parquet rowcount. error: %v", err)
 	}
-
 	if rowcount != expectedRowCount {
 		return fmt.Errorf("expected: %d rows but got: %d", expectedRowCount, rowcount)
 	}

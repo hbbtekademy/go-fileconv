@@ -1,5 +1,3 @@
-//go:build !windows
-
 package fileconv
 
 import (
@@ -27,7 +25,7 @@ func (c *fileconv) Json2Parquet(ctx context.Context, srcJson string, dest string
 	}
 
 	if !jsonReadParams.GetFlatten() {
-		_, err := c.db.ExecContext(ctx, fmt.Sprintf(`
+		err := c.executeCmd(ctx, fmt.Sprintf(`
 		COPY (
 			SELECT * FROM read_json('%s' %s)
 		) TO '%s' %s`,
@@ -55,7 +53,7 @@ func (c *fileconv) Json2Parquet(ctx context.Context, srcJson string, dest string
 		return fmt.Errorf("failed getting flattend table. error: %w", err)
 	}
 
-	_, err = c.db.ExecContext(ctx, fmt.Sprintf(`
+	err = c.executeCmd(ctx, fmt.Sprintf(`
 		COPY (
 			%s
 		) TO '%s' %s`,
@@ -82,7 +80,7 @@ func (c *fileconv) ImportJson(ctx context.Context, srcJson string, jsonReadParam
 		sb.WriteString(fmt.Sprintf(" USING SAMPLE %d", sampleSize))
 	}
 
-	_, err := c.db.ExecContext(ctx, sb.String())
+	err := c.executeCmd(ctx, sb.String())
 	if err != nil {
 		return "", fmt.Errorf("failed importing json. error: %w", err)
 	}

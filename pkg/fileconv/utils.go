@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/hbbtekademy/go-fileconv/pkg/model"
 )
@@ -51,44 +50,6 @@ func (c *fileconv) FlattenStructColumn(ctx context.Context, columnDesc *model.Co
 	}
 
 	return columns, nil
-}
-
-func (c *fileconv) GetTableDesc(ctx context.Context, table string) (*model.TableDesc, error) {
-	rows, err := c.db.QueryContext(ctx, fmt.Sprintf("SELECT COLUMN_NAME, COLUMN_TYPE FROM (DESCRIBE %s)", table))
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	columns := []*model.ColumnDesc{}
-	for rows.Next() {
-		var colName, colType string
-		if err := rows.Scan(&colName, &colType); err != nil {
-			return nil, err
-		}
-		columnDesc := &model.ColumnDesc{
-			ColName: colName,
-			ColType: model.ColumnType(colType),
-		}
-		columns = append(columns, columnDesc)
-	}
-
-	return &model.TableDesc{ColumnDescs: columns}, nil
-}
-
-func (c *fileconv) createStructColTable(ctx context.Context, columnDesc *model.ColumnDesc) (string, error) {
-	tableName := fmt.Sprintf("%s_tmp_%d", columnDesc.ColName, time.Now().UnixMicro())
-	_, err := c.db.ExecContext(ctx, fmt.Sprintf("CREATE TABLE %s (C1 %s)", tableName, columnDesc.ColType))
-	if err != nil {
-		return "", err
-	}
-
-	return tableName, nil
-}
-
-func (c *fileconv) dropTable(ctx context.Context, tableName string) error {
-	_, err := c.db.ExecContext(ctx, fmt.Sprintf("DROP TABLE %s", tableName))
-	return err
 }
 
 func (c *fileconv) getFlattenedTableSelect(ctx context.Context, tableName string) (string, error) {
@@ -145,4 +106,8 @@ func (c *fileconv) getFlattenedTableSelect(ctx context.Context, tableName string
 
 	sb.WriteString(fmt.Sprintf(" FROM (%s)", unnestedTableSelect))
 	return sb.String(), nil
+}
+
+func getDescribeQuery(table string) string {
+	return fmt.Sprintf("SELECT COLUMN_NAME, COLUMN_TYPE FROM (DESCRIBE %s)", table)
 }
