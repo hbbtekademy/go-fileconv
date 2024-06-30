@@ -93,6 +93,7 @@ func TestJson2Parquet(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			dbFile := fmt.Sprintf("test_%d.db", time.Now().UnixNano())
 			defer os.RemoveAll(dbFile)
+			defer os.RemoveAll(dbFile + ".wal")
 
 			conv, err := New(context.Background(), dbFile, tc.duckdbConfigs...)
 			if err != nil {
@@ -168,6 +169,7 @@ a4     | STRUCT(b1 VARCHAR)
 		t.Run(tc.name, func(t *testing.T) {
 			dbFile := fmt.Sprintf("test_%d.db", time.Now().UnixNano())
 			defer os.RemoveAll(dbFile)
+			defer os.RemoveAll(dbFile + ".wal")
 
 			conv, err := New(context.Background(), dbFile)
 			if err != nil {

@@ -18,6 +18,7 @@ func TestFlattenStructColumn(t *testing.T) {
 
 	dbFile := fmt.Sprintf("test_%d.db", time.Now().UnixNano())
 	defer os.RemoveAll(dbFile)
+	defer os.RemoveAll(dbFile + ".wal")
 
 	conv, err := New(context.Background(), dbFile)
 	if err != nil {
