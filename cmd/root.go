@@ -123,14 +123,6 @@ func createConfigDir(cmd *cobra.Command) error {
 	return os.MkdirAll(getConfigDir(cmd), 0700)
 }
 
-func getConfigDir(cmd *cobra.Command) string {
-	configDir, err := cmd.Root().PersistentFlags().GetString(FILECONV_CLI_CONFIG_DIR)
-	if err != nil || configDir == DFLT_FILECONV_CLI_CONFIG_DIR {
-		configDir = os.Getenv("HOME") + "/.fileconv-cli"
-	}
-	return configDir
-}
-
 func getDBFile(cmd *cobra.Command) string {
 	filename := fmt.Sprintf("%s/%s.%d", getConfigDir(cmd), "db.file", time.Now().UnixNano())
 	return filepath.Clean(filename)
