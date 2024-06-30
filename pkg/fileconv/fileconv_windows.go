@@ -8,26 +8,29 @@ import (
 )
 
 type fileconv struct {
-	dbFile   string
-	commands []string
+	dbFile         string
+	duckdbSettings []string
 }
 
 func New(ctx context.Context, dbFile string, duckdbConfigs ...DuckDBConfig) (*fileconv, error) {
 	fconv := &fileconv{
-		dbFile:   dbFile,
-		commands: make([]string, 0, len(duckdbConfigs)+4),
+		dbFile:         dbFile,
+		duckdbSettings: make([]string, 0, len(duckdbConfigs)),
 	}
-
-	fconv.commands = append(fconv.commands, "INSTALL 'icu';")
-	fconv.commands = append(fconv.commands, "LOAD 'icu';")
-	fconv.commands = append(fconv.commands, "INSTALL 'json';")
-	fconv.commands = append(fconv.commands, "LOAD 'json';")
 
 	for _, config := range duckdbConfigs {
-		fconv.commands = append(fconv.commands, fmt.Sprintf("%s;", config))
+		fconv.duckdbSettings = append(fconv.duckdbSettings, fmt.Sprintf("%s;", config))
 	}
 
-	stdout, stderr, err := fconv.execDuckDbCli(ctx, fconv.commands)
+	initCmds := []string{
+		"INSTALL 'icu';",
+		"LOAD 'icu';",
+		"INSTALL 'json';",
+		"LOAD 'json';",
+	}
+	initCmds = append(initCmds, fconv.duckdbSettings...)
+
+	stdout, stderr, err := fconv.execDuckDbCli(ctx, initCmds)
 	if err != nil {
 		return nil, fmt.Errorf("failed executing duckdb cli. stdout: %s, stderr: %s. error: %v", stdout, stderr, err)
 	}

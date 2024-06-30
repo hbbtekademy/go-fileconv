@@ -14,7 +14,7 @@ import (
 
 func (c *fileconv) GetTableDesc(ctx context.Context, table string) (*model.TableDesc, error) {
 	descQuery := getDescribeQuery(table)
-	stdout, stderr, err := c.execDuckDbCli(ctx, []string{}, "-json", "-c", descQuery)
+	stdout, stderr, err := c.execDuckDbCli(ctx, []string{descQuery}, "-json")
 	if err != nil {
 		return nil, fmt.Errorf("failed getting table desc. stdout: %s, stderr: %s. error: %v", stdout, stderr, err)
 	}
@@ -38,7 +38,7 @@ func (c *fileconv) GetTableDesc(ctx context.Context, table string) (*model.Table
 
 func (c *fileconv) createStructColTable(ctx context.Context, columnDesc *model.ColumnDesc) (string, error) {
 	tableName := fmt.Sprintf("%s_tmp_%d", columnDesc.ColName, time.Now().UnixNano())
-	_, stderr, err := c.execDuckDbCli(ctx, []string{}, "-c", fmt.Sprintf("CREATE TABLE %s (C1 %s)", tableName, columnDesc.ColType))
+	_, stderr, err := c.execDuckDbCli(ctx, []string{fmt.Sprintf("CREATE TABLE %s (C1 %s)", tableName, columnDesc.ColType)})
 	if err != nil {
 		return "", fmt.Errorf("failed creating table: %s. stderr: %s. error: %v", tableName, stderr, err)
 	}
@@ -56,7 +56,7 @@ func (c *fileconv) dropTable(ctx context.Context, tableName string) error {
 }
 
 func (c *fileconv) executeCmd(ctx context.Context, cmd string) error {
-	_, stderr, err := c.execDuckDbCli(ctx, []string{}, "-c", cmd)
+	_, stderr, err := c.execDuckDbCli(ctx, []string{cmd})
 	if err != nil {
 		return fmt.Errorf("failed executing cmd: %s. stderr: %s. error: %v", cmd, stderr, err)
 	}
@@ -80,6 +80,10 @@ func (c *fileconv) execDuckDbCli(ctx context.Context, cmds []string, args ...str
 
 	if err := cmd.Start(); err != nil {
 		return stdoutBuf.String(), stderrBuf.String(), fmt.Errorf("failed starting duckdb process. error: %v", err)
+	}
+
+	for _, setting := range c.duckdbSettings {
+		io.WriteString(stdin, setting)
 	}
 
 	for _, cmd := range cmds {
