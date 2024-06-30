@@ -22,7 +22,7 @@ func (c *fileconv) Csv2Parquet(ctx context.Context, srcCsv string, dest string, 
 		return nil
 	}
 
-	_, err := c.db.ExecContext(ctx, fmt.Sprintf("COPY (SELECT * FROM read_csv('%s' %s)) TO '%s' %s",
+	err := c.executeCmd(ctx, fmt.Sprintf("COPY (SELECT * FROM read_csv('%s' %s)) TO '%s' %s",
 		srcCsv,
 		csvReadParams.Params(),
 		dest,

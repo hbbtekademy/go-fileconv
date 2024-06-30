@@ -13,8 +13,8 @@ func (ct ColumnType) IsStruct() bool {
 }
 
 type ColumnDesc struct {
-	ColName string
-	ColType ColumnType
+	ColName string     `json:"column_name"`
+	ColType ColumnType `json:"column_type"`
 }
 
 type TableDesc struct {

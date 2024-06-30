@@ -1,11 +1,11 @@
-//go:build !windows
-
 package fileconv
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/hbbtekademy/go-fileconv/pkg/param"
 	"github.com/hbbtekademy/go-fileconv/pkg/param/jsonparam"
@@ -91,7 +91,10 @@ func TestJson2Parquet(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			conv, err := New(context.Background(), "", tc.duckdbConfigs...)
+			dbFile := fmt.Sprintf("test_%d.db", time.Now().UnixNano())
+			defer os.RemoveAll(dbFile)
+
+			conv, err := New(context.Background(), dbFile, tc.duckdbConfigs...)
 			if err != nil {
 				t.Fatalf("failed getting duckdb client. error: %v", err)
 			}
@@ -163,7 +166,10 @@ a4     | STRUCT(b1 VARCHAR)
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			conv, err := New(context.Background(), "")
+			dbFile := fmt.Sprintf("test_%d.db", time.Now().UnixNano())
+			defer os.RemoveAll(dbFile)
+
+			conv, err := New(context.Background(), dbFile)
 			if err != nil {
 				t.Fatalf("failed getting duckdb client. error: %v", err)
 			}
