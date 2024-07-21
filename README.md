@@ -224,7 +224,7 @@ curl -LO  https://extensions.duckdb.org/v1.0.0/linux_amd/json.duckdb_extension.g
 - Linux
 - MacOS: testing in progress...
 - Windows
-  - Depends on DuckDB CLI. Install: `winget install DuckDB.cli`
+  - Requires DuckDB CLI. Install: `winget install DuckDB.cli`
 
 ## This utility depends on the following projects
 
